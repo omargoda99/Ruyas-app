@@ -11,29 +11,30 @@ class CreateUsersTable extends Migration
      *
      * @return void
      */
-    public function up(): void
-    {
-        Schema::create('users', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('name')->unique();
-            $table->string('first_name')->nullable();
-            $table->string('last_name')->nullable();
-            $table->string('email')->unique()->nullable();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
-            $table->boolean('activated')->default(false);
-            $table->string('token');
-            $table->ipAddress('signup_ip_address')->nullable();
-            $table->ipAddress('signup_confirmation_ip_address')->nullable();
-            $table->ipAddress('signup_sm_ip_address')->nullable();
-            $table->ipAddress('admin_ip_address')->nullable();
-            $table->ipAddress('updated_ip_address')->nullable();
-            $table->ipAddress('deleted_ip_address')->nullable();
-            $table->timestamps();
-            $table->softDeletes();
-        });
-    }
+   // database/migrations/xxxx_xx_xx_create_users_table.php
+public function up()
+{
+    Schema::create('users', function (Blueprint $table) {
+        $table->id();
+        $table->string('name');
+        $table->string('email')->unique();
+        $table->string('password_hash');
+        $table->integer('age')->nullable();
+        $table->enum('marital_status', ['single', 'married', 'divorced', 'widowed'])->nullable();
+        $table->enum('gender', ['male', 'female']);
+        $table->enum('employment_status', ['employed', 'unemployed'])->nullable();
+        $table->string('image_url')->nullable();
+        $table->string('ip_address')->nullable();
+        $table->string('country')->nullable();
+        $table->string('region')->nullable();
+        $table->string('city')->nullable();
+        $table->string('postal_code')->nullable();
+        $table->enum('status', ['active', 'inactive', 'banned'])->default('active');
+        $table->timestamps();
+    });
+}
+
+
 
     /**
      * Reverse the migrations.
