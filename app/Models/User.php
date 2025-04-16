@@ -57,10 +57,16 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
-        'first_name',
-        'last_name',
         'email',
-        'password',
+        'password_hash',
+        'age',
+        'gender',
+        'ip_address',
+        'country',
+        'region',
+        'city',
+        'postal_code',
+        'status',
         'activated',
         'token',
         'signup_ip_address',
@@ -71,6 +77,9 @@ class User extends Authenticatable
         'deleted_ip_address',
     ];
 
+    // protected $fillable = [
+    //     'name', 'email', 'password_hash', 'age', 'gender', 'ip_address', 'country', 'region', 'city', 'postal_code', 'status'
+    // ];
     /**
      * The attributes that should be cast to native types.
      *
@@ -95,11 +104,32 @@ class User extends Authenticatable
         'deleted_at'                        => 'datetime',
     ];
 
+    // Relationship with subscriptions via the pivot table
+    // Relationship with subscriptions via the pivot table
+    public function subscriptions()
+    {
+        return $this->belongsToMany(SubscriptionPlan::class, 'user_subscription_coupon')
+                    ->withPivot('used_at', 'starts_at', 'ends_at', 'is_active', 'coupon_id');
+    }
+
+
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new ResetPasswordNotification($token));
     }
 
+     // Relationship with dreams
+     public function dreams()
+     {
+         return $this->hasMany(Dream::class, 'seer_id');
+     }
+
+     // Define a polymorphic relationship with AdminAction
+    public function adminActions()
+    {
+        return $this->morphMany(AdminAction::class, 'target');
+    }
+    
     /**
      * Get the socials for the user.
      */

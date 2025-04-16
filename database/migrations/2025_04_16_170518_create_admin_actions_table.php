@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('admin_actions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_id')->constrained('users')->onDelete('cascade');
-            $table->enum('action_type', ['ban_user', 'delete_dream', 'delete_chat', 'edit_subscription', 'other']);
-            $table->foreignId('target_id');
-            $table->enum('target_type', ['user','interpreter', 'dream', 'chat', 'subscription']);
-            $table->text('details')->nullable();
+            $table->foreignId('admin_id')->constrained('admins')->onDelete('cascade'); // Foreign key to admin
+            $table->enum('action_type', ['ban_user', 'delete_dream', 'delete_chat', 'edit_subscription', 'other']); // Action type
+            $table->morphs('target'); // Polymorphic relationship columns (target_id, target_type)
+            $table->text('details')->nullable(); // Optional details
+            $table->timestamp('performed_at')->useCurrent(); // Timestamp for the action
             $table->timestamps();
         });
     }
