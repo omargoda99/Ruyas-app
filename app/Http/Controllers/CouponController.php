@@ -12,54 +12,50 @@ class CouponController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json(Coupon::all());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Store a new coupon
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'code'        => 'required|string|unique:coupons,code|max:255',
+            'is_expired'  => 'boolean'
+        ]);
+
+        $coupon = Coupon::create($validated);
+
+        return response()->json($coupon, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Coupon $coupon)
+    // Show a specific coupon
+    public function show($id)
     {
-        //
+        $coupon = Coupon::findOrFail($id);
+        return response()->json($coupon);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Coupon $coupon)
+    // Update an existing coupon
+    public function update(Request $request, $id)
     {
-        //
+        $coupon = Coupon::findOrFail($id);
+
+        $validated = $request->validate([
+            'code'        => 'sometimes|string|unique:coupons,code,' . $coupon->id,
+            'is_expired'  => 'boolean'
+        ]);
+
+        $coupon->update($validated);
+
+        return response()->json($coupon);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Coupon $coupon)
+    // Delete a coupon
+    public function destroy($id)
     {
-        //
-    }
+        $coupon = Coupon::findOrFail($id);
+        $coupon->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Coupon $coupon)
-    {
-        //
+        return response()->json(['message' => 'Coupon deleted successfully.']);
     }
 }
