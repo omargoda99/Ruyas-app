@@ -12,54 +12,77 @@ class UserSubscriptionCouponController extends Controller
      */
     public function index()
     {
-        //
+        $subscriptions = DB::table('user_subscription_coupon')->get();
+        return response()->json($subscriptions);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Create a new subscription
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'user_id'     => 'required|exists:users,id',
+            'plan_id'     => 'required|exists:subscription_plans,id',
+            'coupon_id'   => 'nullable|exists:coupons,id',
+            'starts_at'   => 'required|date',
+            'ends_at'     => 'nullable|date|after_or_equal:starts_at',
+            'is_active'   => 'boolean',
+            'purchased_at'=> 'nullable|date',
+        ]);
+
+        $validated['purchased_at'] = $validated['purchased_at'] ?? now();
+
+        $id = DB::table('user_subscription_coupon')->insertGetId($validated);
+
+        $subscription = DB::table('user_subscription_coupon')->find($id);
+
+        return response()->json($subscription, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(UserSubscriptionCoupon $userSubscriptionCoupon)
+    // Show a single subscription
+    public function show($id)
     {
-        //
+        $subscription = DB::table('user_subscription_coupon')->find($id);
+
+        if (!$subscription) {
+            return response()->json(['message' => 'Subscription not found.'], 404);
+        }
+
+        return response()->json($subscription);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(UserSubscriptionCoupon $userSubscriptionCoupon)
+    // Update subscription
+    public function update(Request $request, $id)
     {
-        //
+        $subscription = DB::table('user_subscription_coupon')->find($id);
+
+        if (!$subscription) {
+            return response()->json(['message' => 'Subscription not found.'], 404);
+        }
+
+        $validated = $request->validate([
+            'starts_at'    => 'sometimes|date',
+            'ends_at'      => 'nullable|date|after_or_equal:starts_at',
+            'coupon_id'    => 'nullable|exists:coupons,id',
+            'is_active'    => 'boolean',
+            'purchased_at' => 'nullable|date',
+        ]);
+
+        DB::table('user_subscription_coupon')->where('id', $id)->update($validated);
+
+        return response()->json(DB::table('user_subscription_coupon')->find($id));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, UserSubscriptionCoupon $userSubscriptionCoupon)
+    // Delete a subscription
+    public function destroy($id)
     {
-        //
-    }
+        $subscription = DB::table('user_subscription_coupon')->find($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(UserSubscriptionCoupon $userSubscriptionCoupon)
-    {
-        //
+        if (!$subscription) {
+            return response()->json(['message' => 'Subscription not found.'], 404);
+        }
+
+        DB::table('user_subscription_coupon')->delete($id);
+
+        return response()->json(['message' => 'Subscription deleted successfully.']);
     }
 }
