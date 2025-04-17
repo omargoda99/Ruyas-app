@@ -87,6 +87,67 @@ Route::group(['middleware' => ['auth:api', 'activated', 'role:admin', 'activity'
     Route::get('/routes', 'App\Http\Controllers\AdminDetailsController@listRoutes');
 });
 
+Route::apiResource('users', UserController::class);
+Route::apiResource('subscription-plans', SubscriptionPlanController::class);
+Route::apiResource('coupons', CouponController::class);
+Route::apiResource('user-subscriptions', UserSubscriptionCouponController::class);
+Route::apiResource('dreams', DreamController::class);
+Route::apiResource('admins', AdminController::class);
+Route::apiResource('interpreters', InterpreterController::class);
+/*
+ * GET /api/X/{id}
+
+ */
+Route::post('admin-actions', [AdminActionController::class, 'logAction']);  // Log a new admin action
+Route::get('admin-actions', [AdminActionController::class, 'index']);       // Get all admin actions
+Route::get('admin-actions/{targetType}/{targetId}', [AdminActionController::class, 'getActionsByTarget']);  // Get actions by target (user/dream)
+Route::delete('admin-actions/{id}', [AdminActionController::class, 'delete']); // Delete an admin action
+/*
+ * POST /api/admin-actions
+{
+    "admin_id": 1,
+    "action_type": "ban_user",
+    "target_id": 5,
+    "target_type": "App\Models\User",
+    "details": "Banned the user for inappropriate behavior."
+}
+
+ */
+Route::post('certifications', [CertificationController::class, 'store']); // Create certification
+Route::get('interpreters/{interpreterId}/certifications', [CertificationController::class, 'show']); // Get certifications by interpreter
+Route::delete('certifications/{id}', [CertificationController::class, 'destroy']); // Delete certification
+/*
+ * POST /api/certifications
+{
+    "interpreter_id": 1,
+    "name": "Certified Interpreter",
+    "issuing_organization": "Language Association",
+    "issue_date": "2023-05-01",
+    "credential_id": "12345",
+    "credential_url": "http://example.com/credential",
+    "credential_img": "file"  # Attach the image file
+}
+
+ */
+Route::post('interpretations', [InterpretationController::class, 'store']); // Create interpretation
+Route::get('dreams/{dreamId}/interpretation', [InterpretationController::class, 'show']); // Show interpretation of a dream
+Route::put('interpretations/{id}/approve', [InterpretationController::class, 'approve']); // Approve interpretation
+Route::delete('interpretations/{id}', [InterpretationController::class, 'destroy']); // Delete interpretation
+/*
+ * POST /api/interpretations
+{
+    "dream_id": 1,
+    "interpreter_id": 2,
+    "content": "This dream signifies a new beginning.",
+    "is_approved": false
+}
+GET /api/dreams/1/interpretation (show interpretation of a dream)
+PUT /api/interpretations/1/approve (approve it)
+DELETE /api/interpretations/1
+
+ */
+
+
 // PHP info
 Route::get('/phpinfo', function () {
     return phpinfo();
