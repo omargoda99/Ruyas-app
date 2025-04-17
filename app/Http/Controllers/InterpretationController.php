@@ -7,59 +7,61 @@ use Illuminate\Http\Request;
 
 class InterpretationController extends Controller
 {
+    public function index()
+    {
+        return response()->json(Interpretation::all());
+    }
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'dream_id'      => 'required|exists:dreams,id',
+            'interpreter_id'=> 'required|exists:interpreters,id',
+            'content'       => 'required|string',
+        ]);
+
+        $interpretation = Interpretation::create([
+            'dream_id'      => $request->dream_id,
+            'interpreter_id'=> $request->interpreter_id,
+            'content'       => $request->content,
+            'is_approved'   => $request->is_approved ?? false,
+        ]);
+
+        return response()->json($interpretation, 201);
     }
 
     /**
-     * Display the specified resource.
+     * Show the interpretation of a dream.
      */
-    public function show(Interpretation $interpretation)
+    public function show($dreamId)
     {
-        //
+        $interpretation = Interpretation::where('dream_id', $dreamId)->firstOrFail();
+
+        return response()->json($interpretation);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Approve an interpretation.
      */
-    public function edit(Interpretation $interpretation)
+    public function approve($id)
     {
-        //
+        $interpretation = Interpretation::findOrFail($id);
+        $interpretation->is_approved = true;
+        $interpretation->save();
+
+        return response()->json($interpretation);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Delete an interpretation.
      */
-    public function update(Request $request, Interpretation $interpretation)
+    public function destroy($id)
     {
-        //
-    }
+        $interpretation = Interpretation::findOrFail($id);
+        $interpretation->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Interpretation $interpretation)
-    {
-        //
+        return response()->json(['message' => 'Interpretation deleted successfully.']);
     }
 }
