@@ -12,54 +12,76 @@ class InterpreterController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json(Interpreter::all());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Store a new interpreter
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name'        => 'required|string|max:255',
+            'email'       => 'required|email|unique:interpreters,email',
+            'password'    => 'required|string|min:6',
+            'age'         => 'nullable|integer|min:0',
+            'gender'      => 'required|in:male,female',
+            'ip_address'  => 'nullable|ip',
+            'country'     => 'nullable|string',
+            'region'      => 'nullable|string',
+            'city'        => 'nullable|string',
+            'postal_code' => 'nullable|string',
+            'status'      => 'in:active,inactive,banned',
+        ]);
+
+        $validated['password'] = Hash::make($validated['password']);
+
+        $interpreter = Interpreter::create($validated);
+
+        return response()->json($interpreter, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Interpreter $interpreter)
+    // Show a specific interpreter
+    public function show($id)
     {
-        //
+        $interpreter = Interpreter::findOrFail($id);
+        return response()->json($interpreter);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Interpreter $interpreter)
+    // Update an interpreter
+    public function update(Request $request, $id)
     {
-        //
+        $interpreter = Interpreter::findOrFail($id);
+
+        $validated = $request->validate([
+            'name'        => 'sometimes|string|max:255',
+            'email'       => "sometimes|email|unique:interpreters,email,{$id}",
+            'password'    => 'nullable|string|min:6',
+            'age'         => 'nullable|integer|min:0',
+            'gender'      => 'sometimes|in:male,female',
+            'ip_address'  => 'nullable|ip',
+            'country'     => 'nullable|string',
+            'region'      => 'nullable|string',
+            'city'        => 'nullable|string',
+            'postal_code' => 'nullable|string',
+            'status'      => 'in:active,inactive,banned',
+        ]);
+
+        if (!empty($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        } else {
+            unset($validated['password']);
+        }
+
+        $interpreter->update($validated);
+
+        return response()->json($interpreter);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Interpreter $interpreter)
+    // Delete an interpreter
+    public function destroy($id)
     {
-        //
-    }
+        $interpreter = Interpreter::findOrFail($id);
+        $interpreter->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Interpreter $interpreter)
-    {
-        //
+        return response()->json(['message' => 'Interpreter deleted successfully.']);
     }
 }
