@@ -12,54 +12,57 @@ class DreamController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json(Dream::with('user')->get());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Store a new dream
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'user_id'       => 'required|exists:users,id',
+            'title'         => 'required|string|max:255',
+            'description'   => 'nullable|string',
+            'is_favorite'   => 'boolean',
+            'is_shared'     => 'boolean',
+            'is_explained'  => 'boolean',
+        ]);
+
+        $dream = Dream::create($validated);
+
+        return response()->json($dream, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Dream $dream)
+    // Show a specific dream
+    public function show($id)
     {
-        //
+        $dream = Dream::with('user')->findOrFail($id);
+        return response()->json($dream);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Dream $dream)
+    // Update a dream
+    public function update(Request $request, $id)
     {
-        //
+        $dream = Dream::findOrFail($id);
+
+        $validated = $request->validate([
+            'title'         => 'sometimes|string|max:255',
+            'description'   => 'nullable|string',
+            'is_favorite'   => 'boolean',
+            'is_shared'     => 'boolean',
+            'is_explained'  => 'boolean',
+        ]);
+
+        $dream->update($validated);
+
+        return response()->json($dream);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Dream $dream)
+    // Delete a dream
+    public function destroy($id)
     {
-        //
-    }
+        $dream = Dream::findOrFail($id);
+        $dream->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Dream $dream)
-    {
-        //
+        return response()->json(['message' => 'Dream deleted successfully.']);
     }
 }
