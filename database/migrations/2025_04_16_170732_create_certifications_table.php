@@ -20,6 +20,7 @@ return new class extends Migration
             $table->date('issue_date'); // Issue date
             $table->string('credential_id')->nullable(); // Credential ID (optional)
             $table->string('credential_url')->nullable(); // Credential URL (optional)
+            $table->string('credential_img');
             $table->timestamps(); // created_at and updated_at timestamps
         });
     }
