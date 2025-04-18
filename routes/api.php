@@ -1,7 +1,27 @@
 <?php
 
+use App\Http\Controllers\AdminActionController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CertificationController;
+use App\Http\Controllers\CouponController;
+use App\Http\Controllers\DreamController;
+use App\Http\Controllers\InterpretationController;
+use App\Http\Controllers\InterpreterController;
+use App\Http\Controllers\SubscriptionPlanController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserSubscriptionCouponController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+
+
+
+
+
+
+
+
+
 
 /*
 |--------------------------------------------------------------------------

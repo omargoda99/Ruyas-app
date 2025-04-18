@@ -29,17 +29,14 @@ class RegisterController extends Controller
             $data,
             [
                 'name'                  => 'required|max:255|unique:users|alpha_dash',
-                'first_name'            => 'alpha_dash',
-                'last_name'             => 'alpha_dash',
                 'email'                 => 'required|email|max:255|unique:users',
                 'password'              => 'required|min:6|max:30|confirmed',
                 'password_confirmation' => 'required|same:password',
+                'token'                 => 'sometimes',
             ],
             [
                 'name.unique'           => trans('auth.userNameTaken'),
                 'name.required'         => trans('auth.userNameRequired'),
-                'first_name.required'   => trans('auth.fNameRequired'),
-                'last_name.required'    => trans('auth.lNameRequired'),
                 'email.required'        => trans('auth.emailRequired'),
                 'email.email'           => trans('auth.emailInvalid'),
                 'password.required'     => trans('auth.passwordRequired'),
@@ -81,23 +78,25 @@ class RegisterController extends Controller
 
         $user = User::create([
             'name'              => strip_tags($data['name']),
-            'first_name'        => strip_tags($data['first_name']),
-            'last_name'         => strip_tags($data['last_name']),
             'email'             => $data['email'],
-            'password'          => Hash::make($data['password']),
-            'token'             => str()->random(64),
-            'signup_ip_address' => $ip,
-            'activated'         => $activated,
+            'password_hash'          => Hash::make($data['password']),
+            // 'token'             => str()->random(64),
+            // 'signup_ip_address' => $ip,
+            // 'activated'         => $activated,
         ]);
 
-        $user->attachRole($role);
+        // $user->attachRole($role);
 
-        $profile = new Profile();
-        $user->profile()->save($profile);
+        // $profile = new Profile();
+        // $user->profile()->save($profile);
 
-        return $user;
+        // return $user;
     }
 
+    public function showRegistrationForm()
+    {
+        return view('auth.register'); // Or any view that you want to use for the registration page
+    }
 
 
     public function getPublicIp(): string

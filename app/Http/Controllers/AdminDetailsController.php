@@ -12,6 +12,12 @@ class AdminDetailsController extends Controller
      *
      * @return void
      */
+    public function Admin_home(){
+        return view('admin.admin_home');
+    }
+    public function index(){
+
+    }
     public function __construct()
     {
         $this->middleware('auth');

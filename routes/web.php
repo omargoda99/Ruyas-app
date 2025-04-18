@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminDetailsController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -134,3 +135,7 @@ Route::group(['middleware' => ['auth', 'activated', 'role:admin', 'activity', 't
 });
 
 Route::redirect('/php', '/phpinfo', 301);
+
+
+// Admin Routes
+Route::get('admin_home',[AdminDetailsController::class,'Admin_home']);
