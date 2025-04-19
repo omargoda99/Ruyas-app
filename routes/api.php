@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminActionController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AppGuideController;
 use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\DreamController;
@@ -14,6 +15,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
+  // App_Guide Controller
+    Route::get('guides',[AppGuideController::class,  'index']);
+    Route::post('guides',[AppGuideController::class,  'store']);
+    Route::get('guide',[AppGuideController::class,  'show']);
+    Route::put('guides',[AppGuideController::class,  'update']);
+    Route::delete('guides',[AppGuideController::class, 'destroy']);
 
 
 
@@ -62,6 +69,8 @@ Route::group(['middleware' => ['api', 'checkblocked']], function () {
 // Authenticated Routes
 Route::group(['middleware' => ['auth:api', 'activated', 'activity', 'checkblocked']], function () {
     Route::get('/activation-required', 'App\Http\Controllers\Auth\ActivateController@activationRequired');
+
+
 
     // Home route
     Route::get('/home', 'App\Http\Controllers\UserController@index');
