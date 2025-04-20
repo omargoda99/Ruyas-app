@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdController;
 use App\Http\Controllers\AdminActionController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AppGuideController;
@@ -23,13 +24,37 @@ use Illuminate\Support\Facades\Route;
     Route::delete('guides',[AppGuideController::class, 'destroy']);
 
 
+    // Home route
+        // Ads Routes
+        Route::get('ads',[AdController::class,  'index']);
+        Route::post('ads',[AdController::class,  'store']);
+        Route::get('ad',[AdController::class,  'show']);
+        Route::put('ads',[AdController::class,  'update']);
+        Route::delete('ads',[AdController::class, 'destroy']);
 
+        // subscriptions_plans
+        Route::get('plans',[SubscriptionPlanController::class , 'index']);
+        Route::post('plans',[SubscriptionPlanController::class,'store']);
+        Route::get('plan',[SubscriptionPlanController::class, 'show']);
+        Route::put('plans',[SubscriptionPlanController::class, 'update']);
+        Route::delete('plans',[SubscriptionPlanController::class, 'destroy']);
 
+        // Chosen Dreams
+        Route::get('dreams',[DreamController::class, 'index']);
+        Route::post('dreams',[DreamController::class, 'store']);
+        Route::get('dream',[DreamController::class, 'show']);
+        Route::put('dreams',[DreamController::class, 'update']);
+        Route::delete('dreams',[DreamController::class, 'destroy']);
 
-
-
-
-
+    // Favorite Dreams Page
+        // Route to add a dream to favorites
+        Route::post('dreams/favorite', [DreamController::class, 'addFavorite']);
+        // Route to remove a dream from favorites
+        Route::delete('dreams/favorite', [DreamController::class, 'removeFavorite']);
+        // Route to get favorite dreams for the authenticated user
+        Route::get('user/favorites', [DreamController::class, 'getFavoriteDreams']);
+    // Route to get all dreams created by the authenticated user
+    Route::get('user/dreams', [DreamController::class, 'getMyDreams']);
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -72,8 +97,8 @@ Route::group(['middleware' => ['auth:api', 'activated', 'activity', 'checkblocke
 
 
 
-    // Home route
-    Route::get('/home', 'App\Http\Controllers\UserController@index');
+
+
 
     // Profile routes
     Route::get('/profile/{username}', 'App\Http\Controllers\ProfilesController@show');
@@ -120,7 +145,7 @@ Route::apiResource('users', UserController::class);
 Route::apiResource('subscription-plans', SubscriptionPlanController::class);
 Route::apiResource('coupons', CouponController::class);
 Route::apiResource('user-subscriptions', UserSubscriptionCouponController::class);
-Route::apiResource('dreams', DreamController::class);
+// Route::apiResource('dreams', DreamController::class);
 Route::apiResource('admins', AdminController::class);
 Route::apiResource('interpreters', InterpreterController::class);
 /*

@@ -16,9 +16,21 @@ class Dream extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'user_dream_favorites')
+                    ->withTimestamps();  // To track when users favorited the dream
+    }
+    
      // Define a polymorphic relationship with AdminAction
      public function adminActions()
      {
          return $this->morphMany(AdminAction::class, 'target');
      }
+
+     // Define the one-to-one relationship with the Interpretation model
+    public function interpretation()
+    {
+        return $this->hasOne(Interpretation::class);
+    }
 }

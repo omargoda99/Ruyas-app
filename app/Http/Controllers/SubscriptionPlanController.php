@@ -12,7 +12,11 @@ class SubscriptionPlanController extends Controller
      */
     public function index()
     {
-        return response()->json(SubscriptionPlan::all());
+        // Get all subscription plans with only the id, name, and price
+        $plans = SubscriptionPlan::select('id', 'name','price')->get();
+
+        // Return the subscription plans as a JSON response
+        return response()->json($plans);
     }
 
     // Store a new subscription plan
@@ -35,15 +39,17 @@ class SubscriptionPlanController extends Controller
     }
 
     // Show one subscription plan
-    public function show($id)
+    public function show(Request $request)
     {
+        $id = $request->input('id');
         $plan = SubscriptionPlan::findOrFail($id);
         return response()->json($plan);
     }
 
     // Update an existing plan
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
+        $id = $request->input('id');
         $plan = SubscriptionPlan::findOrFail($id);
 
         $validated = $request->validate([
@@ -64,8 +70,9 @@ class SubscriptionPlanController extends Controller
     }
 
     // Delete a plan
-    public function destroy($id)
+    public function destroy(Request $request)
     {
+        $id = $request->input('id');
         $plan = SubscriptionPlan::findOrFail($id);
         $plan->delete();
 

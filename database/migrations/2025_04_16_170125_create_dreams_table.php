@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('title');
             $table->text('description')->nullable();
-            $table->boolean('is_favorite')->default(false);
             $table->boolean('is_shared')->default(false);
             $table->boolean('is_explained')->default(false);
             $table->timestamps();

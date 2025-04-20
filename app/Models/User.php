@@ -104,7 +104,13 @@ class User extends Authenticatable
         'deleted_at'                        => 'datetime',
     ];
 
-    // Relationship with subscriptions via the pivot table
+
+    public function favoriteDreams()
+    {
+        return $this->belongsToMany(Dream::class, 'user_dream_favorites')
+                    ->withTimestamps();  // To automatically manage the created_at timestamps
+    }
+
     // Relationship with subscriptions via the pivot table
     public function subscriptions()
     {
@@ -129,7 +135,7 @@ class User extends Authenticatable
     {
         return $this->morphMany(AdminAction::class, 'target');
     }
-    
+
     /**
      * Get the socials for the user.
      */
