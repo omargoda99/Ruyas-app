@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -101,4 +102,19 @@ class UserController extends Controller
 
         return response()->json(['message' => 'User deleted successfully.']);
     }
+     // Method to mark a notification as read
+      // Mark notification as read (API version)
+      public function markAsRead($notificationId)
+      {
+          // Find the notification
+          $notification = Notification::findOrFail($notificationId);
+
+          // Mark the notification as read by setting 'read_at' to current timestamp
+          $notification->update(['read_at' => now()]);
+
+          // Return success response as JSON
+          return response()->json([
+              'message' => 'Notification marked as read'
+          ], 200);
+      }
 }

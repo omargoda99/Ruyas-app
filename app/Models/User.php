@@ -196,4 +196,11 @@ class User extends Authenticatable
     {
         return $this->profiles()->detach($profile);
     }
+
+      // Manually define the notifications relationship
+      public function notifications()
+      {
+          return $this->morphMany('Illuminate\Notifications\DatabaseNotification', 'notifiable');
+      }
+      
 }
