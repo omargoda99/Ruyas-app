@@ -19,8 +19,13 @@ public function up()
         $table->string('password'); // Interpreter password
         $table->integer('age')->nullable(); // Interpreter age
         $table->enum('gender', ['male', 'female']); // Interpreter gender
+        // years of exp
+        // quran 
+        // nation
+        // language
+        
         $table->string('ip_address')->nullable(); // IP address
-        $table->string('country')->nullable(); // Country
+        $table->string('country')->nullable(); // Country 
         $table->string('region')->nullable(); // Region
         $table->string('city')->nullable(); // City
         $table->string('postal_code')->nullable(); // Postal code

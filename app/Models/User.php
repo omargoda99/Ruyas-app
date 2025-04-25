@@ -200,6 +200,11 @@ class User extends Authenticatable
     {
         return $this->profiles()->detach($profile);
     }
+    public function complains()
+    {
+        return $this->hasMany(Complain::class);
+    }
+    
 
 <<<<<<< HEAD
     public function subscriptionCoupons(): \Illuminate\Database\Eloquent\Relations\HasMany

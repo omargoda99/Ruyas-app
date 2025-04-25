@@ -12,6 +12,9 @@ use App\Http\Controllers\InterpreterController;
 use App\Http\Controllers\SubscriptionPlanController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserSubscriptionCouponController;
+use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\ComplainController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -200,7 +203,13 @@ PUT /api/interpretations/1/approve (approve it)
 DELETE /api/interpretations/1
 
  */
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('feedbacks', FeedbackController::class);
+});
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('complains', ComplainController::class);
+});
 
 // PHP info
 Route::get('/phpinfo', function () {

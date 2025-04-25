@@ -20,4 +20,19 @@ class Interpreter extends Model
     {
         return $this->hasMany(Interpretation::class);
     }
+    public function complains()
+    {
+        return $this->hasMany(Complain::class);
+    }
+
+    public function updateRating()
+    {
+        $this->rating_avg = $this->feedbacks()->avg('rating') ?? 0;
+        $this->save();
+    }
+
+    public function feedbacks()
+    {
+        return $this->hasMany(Feedback::class);
+    }
 }
