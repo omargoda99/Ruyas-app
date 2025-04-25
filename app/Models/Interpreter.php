@@ -16,4 +16,8 @@ class Interpreter extends Model
      {
          return $this->hasMany(Certification::class, 'interpreter_id');
      }
+     public function interpretations()
+    {
+        return $this->hasMany(Interpretation::class);
+    }
 }

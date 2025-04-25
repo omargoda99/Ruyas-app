@@ -10,13 +10,21 @@ class AdController extends Controller
    /**
      * Display a listing of the advertisements.
      */
-    public function index()
+    public function index(): \Illuminate\Http\JsonResponse
     {
-        // Get all active ads ordered by the 'start_date' field in ascending order
         $ads = Ad::orderBy('start_date', 'asc')->get();
 
-        // Return the ads as a JSON response
-        return response()->json($ads);
+        return response()->json($ads->map(function ($ad) {
+            return [
+                'id' => $ad->id,
+                'title' => $ad->ad_title,
+                'description' => $ad->ad_description,
+                'start_date' => $ad->start_date,
+                'end_date' => $ad->end_date,
+                'link' => $ad->link,
+                'image_url' => asset('storage' . $ad->ad_image_path),
+            ];
+        }));
     }
 
     /**
@@ -36,7 +44,7 @@ class AdController extends Controller
 
         // Handle the image upload if present
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('ad_images', 'public'); // Store image in 'public' disk
+            $imagePath = $request->file('image')->store('ads','public'); // Store image in 'public' disk
         } else {
             $imagePath = null; // If no image is uploaded, set it to null
         }

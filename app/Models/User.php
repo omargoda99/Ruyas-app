@@ -58,7 +58,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'password_hash',
+        'password',
         'age',
         'gender',
         'ip_address',
@@ -195,5 +195,17 @@ class User extends Authenticatable
     public function removeProfile(Profile $profile)
     {
         return $this->profiles()->detach($profile);
+    }
+
+    public function subscriptionCoupons(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(UserSubscriptionCoupon::class);
+    }
+
+    public function activeSubscriptions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->subscriptionCoupons()
+            ->where('is_active', true)
+            ->where('ends_at', '>', now());
     }
 }
