@@ -58,7 +58,11 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'password',
+        'passwor
+        
+        
+        
+        d',
         'age',
         'gender',
         'ip_address',
@@ -197,6 +201,7 @@ class User extends Authenticatable
         return $this->profiles()->detach($profile);
     }
 
+<<<<<<< HEAD
     public function subscriptionCoupons(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(UserSubscriptionCoupon::class);
@@ -208,4 +213,12 @@ class User extends Authenticatable
             ->where('is_active', true)
             ->where('ends_at', '>', now());
     }
+=======
+      // Manually define the notifications relationship
+      public function notifications()
+      {
+          return $this->morphMany('Illuminate\Notifications\DatabaseNotification', 'notifiable');
+      }
+      
+>>>>>>> 9a854ce65dec32d48bbe4eeae85d000243ecaf2d
 }

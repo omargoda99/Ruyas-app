@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 class AdController extends Controller
 {
-   /**
+    /**
      * Display a listing of the advertisements.
      */
     public function index(): \Illuminate\Http\JsonResponse
