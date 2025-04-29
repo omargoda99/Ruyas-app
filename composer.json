@@ -31,6 +31,7 @@
     "laravel/tinker": "^2.8",
     "laravel/ui": "^4.2",
     "laravelcollective/html": "^6.4",
+    "munafio/chatify": "^1.6",
     "nesbot/carbon": "^2.66",
     "predis/predis": "^2.1",
     "pusher/pusher-php-server": "^7.2",

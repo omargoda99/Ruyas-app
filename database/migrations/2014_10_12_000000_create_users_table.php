@@ -30,6 +30,7 @@ public function up()
         $table->string('city')->nullable();
         $table->string('postal_code')->nullable();
         $table->enum('status', ['active', 'inactive', 'banned'])->default('active');
+        $table->softDeletes(); // This adds the `deleted_at` column
         $table->timestamps();
     });
 }

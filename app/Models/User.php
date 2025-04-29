@@ -20,14 +20,17 @@ class User extends Authenticatable
      *
      * @var string
      */
+    use SoftDeletes; // This enables soft deletes for the User model
     protected $table = 'users';
 
+    
     /**
      * Indicates if the model should be timestamped.
      *
      * @var bool
      */
     public $timestamps = true;
+
 
     /**
      * The attributes that are not mass assignable.
@@ -202,5 +205,19 @@ class User extends Authenticatable
       {
           return $this->morphMany('Illuminate\Notifications\DatabaseNotification', 'notifiable');
       }
-      
+      // Define the relationship to messages sent by the user (as the sender)
+    public function sentMessages()
+    {
+        return $this->hasMany(ChMessage::class, 'from_id');
+    }
+
+    // Define the relationship to messages received by the user (as the receiver)
+    public function receivedMessages()
+    {
+        return $this->hasMany(ChMessage::class, 'to_id');
+    }
+      public function conversations()
+        {
+            return $this->hasMany(Conversation::class, 'user_id');
+        }
 }

@@ -15,6 +15,19 @@ use App\Http\Controllers\UserSubscriptionCouponController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\ChatController;
+
+// Route::middleware('auth:api')->prefix('chat')->group(function () {
+    // Route to start a new conversation
+    Route::post('chat/start-conversation', [ChatController::class, 'startConversation']);
+
+    // Route to send a message
+    Route::post('chat/send-message', [ChatController::class, 'sendMessage']);
+
+    // Route to get all messages in a conversation
+    Route::get('/chatconversation/messages', [ChatController::class, 'getMessages']);
+// });
+
 
   // App_Guide Controller
     Route::get('guides',[AppGuideController::class,  'index']);
