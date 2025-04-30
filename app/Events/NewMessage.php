@@ -43,7 +43,7 @@ class NewMessage implements ShouldBroadcast
     }
 
     public function broadcastAs(){
-        return 'message'
+        return 'message';
     }
 
 }
