@@ -61,7 +61,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'password_hash',
+        'password',
         'age',
         'gender',
         'ip_address',
@@ -199,7 +199,23 @@ class User extends Authenticatable
     {
         return $this->profiles()->detach($profile);
     }
+    public function complains()
+    {
+        return $this->hasMany(Complain::class);
+    }
+    
 
+    public function subscriptionCoupons(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(UserSubscriptionCoupon::class);
+    }
+
+    public function activeSubscriptions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->subscriptionCoupons()
+            ->where('is_active', true)
+            ->where('ends_at', '>', now());
+    }
       // Manually define the notifications relationship
       public function notifications()
       {

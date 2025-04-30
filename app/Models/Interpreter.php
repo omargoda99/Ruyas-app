@@ -9,8 +9,14 @@ class Interpreter extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['email', 'password', 'name', 'age', 'gender', 'ip_address', 'country', 'region', 'city', 'postal_code', 'status'];
+    // Fillable attributes
+    protected $fillable = [
+        'email', 'password', 'name', 'age', 'gender', 'country', 'city', 
+        'status', 'languages', 'years_of_experience', 'memorized_quran_parts', 
+        'nationality', 'certifications_id', 'interpretations_id'
+    ];
 
+<<<<<<< HEAD
      // Relationship with certifications (one-to-many)
      public function certifications()
      {
@@ -30,5 +36,61 @@ class Interpreter extends Model
      public function conversations()
     {
         return $this->hasMany(Conversation::class, 'interpreter_id');
+=======
+    // Cast the 'languages' attribute to an array for easy access
+    protected $casts = [
+        'languages' => 'array', // Automatically cast JSON to array
+    ];
+
+    /**
+     * Relationship with certifications (one-to-many)
+     */
+    public function certifications()
+    {
+        return $this->hasMany(Certification::class, 'interpreter_id');
+    }
+
+    /**
+     * Relationship with interpretations (one-to-many)
+     */
+    public function interpretations()
+    {
+        return $this->hasMany(Interpretation::class);
+    }
+
+    /**
+     * Relationship with complains (one-to-many)
+     */
+    public function complains()
+    {
+        return $this->hasMany(Complain::class);
+    }
+
+    /**
+     * Relationship with feedbacks (one-to-many)
+     */
+    public function feedbacks()
+    {
+        return $this->hasMany(Feedback::class);
+    }
+
+    /**
+     * Calculate and update the average rating of the interpreter.
+     */
+    public function updateRating()
+    {
+        $this->rating_avg = $this->feedbacks()->avg('rating') ?? 0;
+        $this->save();
+    }
+
+    /**
+     * Add languages to the 'languages' attribute.
+     */
+    public function addLanguages(array $languages)
+    {
+        // Merge new languages with existing ones and remove duplicates
+        $this->languages = array_unique(array_merge($this->languages ?? [], $languages));
+        $this->save();
+>>>>>>> 9a9dfa3b493666b63765a5eaf0ac7a9d4798995c
     }
 }

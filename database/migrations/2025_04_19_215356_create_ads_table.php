@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('link')->nullable(); // URL to redirect when clicked
             $table->dateTime('start_date'); // When the ad should start showing
             $table->dateTime('end_date'); // When the ad should stop showing
-            $table->enum('status', ['active', 'inactive', 'expired'])->default('active'); // Status of the ad
+            $table->enum('status', ['active', 'expired'])->default('active'); // Status of the ad
             $table->timestamps(); // Created and updated timestamps
         });
     }
