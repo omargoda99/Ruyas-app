@@ -69,8 +69,8 @@ use App\Http\Controllers\ChatController;
         Route::delete('dreams/favorite', [DreamController::class, 'removeFavorite']);
         // Route to get favorite dreams for the authenticated user
         Route::get('user/favorites', [DreamController::class, 'getFavoriteDreams']);
-    // Route to get all dreams created by the authenticated user
-    Route::get('user/dreams', [DreamController::class, 'getMyDreams']);
+        // Route to get all dreams created by the authenticated user
+        Route::get('user/dreams', [DreamController::class, 'getMyDreams']);
 /*
 |--------------------------------------------------------------------------
 | API Routes
