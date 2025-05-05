@@ -40,7 +40,8 @@
     "socialiteproviders/instagram": "^5.0",
     "socialiteproviders/linkedin": "^4.2",
     "socialiteproviders/twitch": "^5.3",
-    "socialiteproviders/youtube": "^4.1"
+    "socialiteproviders/youtube": "^4.1",
+    "filament/filament": "*"
   },
   "require-dev": {
     "fakerphp/faker": "^1.9.1",
