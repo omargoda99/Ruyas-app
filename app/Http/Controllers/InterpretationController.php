@@ -11,9 +11,7 @@ class InterpretationController extends Controller
     {
         return response()->json(Interpretation::all());
     }
-    /**
-     * Display a listing of the resource.
-     */
+
     public function store(Request $request)
     {
         $request->validate([
@@ -21,30 +19,66 @@ class InterpretationController extends Controller
             'interpreter_id'=> 'required|exists:interpreters,id',
             'content'       => 'required|string',
         ]);
-
+    
         $interpretation = Interpretation::create([
             'dream_id'      => $request->dream_id,
             'interpreter_id'=> $request->interpreter_id,
             'content'       => $request->content,
             'is_approved'   => $request->is_approved ?? false,
         ]);
-
+    
         return response()->json($interpretation, 201);
     }
+    
 
-    /**
-     * Show the interpretation of a dream.
-     */
-    public function show($dreamId)
+    public function show($id)
     {
-        $interpretation = Interpretation::where('dream_id', $dreamId)->firstOrFail();
+        $interpretation = Interpretation::findOrFail($id);
+        return response()->json($interpretation);
+    }
+
+    public function showApproved($id)
+    {
+        $interpretation = Interpretation::where('id', $id)
+            ->where('is_approved', true)
+            ->firstOrFail();
 
         return response()->json($interpretation);
     }
 
-    /**
-     * Approve an interpretation.
-     */
+    public function indexByDream($dreamId)
+    {
+        $interpretations = Interpretation::where('dream_id', $dreamId)->get();
+        return response()->json($interpretations);
+    }
+
+    public function indexByInterpreter($interpreterId)
+    {
+        $interpretations = Interpretation::where('interpreter_id', $interpreterId)->get();
+        return response()->json($interpretations);
+    }
+
+    public function indexByUser($userId)
+    {
+        $interpretations = Interpretation::whereHas('dream', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })->get();
+
+        return response()->json($interpretations);
+    }
+
+    public function indexApproved()
+    {
+        $interpretations = Interpretation::where('is_approved', true)->get();
+        return response()->json($interpretations);
+    }
+
+    public function indexUnapproved()
+    {
+        $interpretations = Interpretation::where('is_approved', false)->get();
+        return response()->json($interpretations);
+    }
+
     public function approve($id)
     {
         $interpretation = Interpretation::findOrFail($id);
@@ -54,9 +88,6 @@ class InterpretationController extends Controller
         return response()->json($interpretation);
     }
 
-    /**
-     * Delete an interpretation.
-     */
     public function destroy($id)
     {
         $interpretation = Interpretation::findOrFail($id);

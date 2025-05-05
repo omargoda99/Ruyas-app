@@ -7,19 +7,18 @@ use Illuminate\Http\Request;
 
 class SubscriptionPlanController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Get all subscription plans
     public function index()
     {
-        // Get all subscription plans with only the id, name, and price
-        $plans = SubscriptionPlan::select('id', 'name','price')->get();
+        $plans = SubscriptionPlan::select('id', 'name', 'description', 'price', 'features')->get();
 
-        // Return the subscription plans as a JSON response
-        return response()->json($plans);
+        return response()->json([
+            'status' => 'success',
+            'data' => $plans,
+        ]);
     }
 
-    // Store a new subscription plan
+    // Store a new plan
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -30,52 +29,55 @@ class SubscriptionPlanController extends Controller
             'is_active'   => 'boolean',
         ]);
 
-        // Store as JSON
-        $validated['features'] = json_encode($validated['features']);
-
         $plan = SubscriptionPlan::create($validated);
 
-        return response()->json($plan, 201);
+        return response()->json([
+            'status' => 'created',
+            'data' => $plan,
+        ], 201);
     }
 
-    // Show one subscription plan
-    public function show(Request $request)
+    // Show a single plan
+    public function show($id)
     {
-        $id = $request->input('id');
         $plan = SubscriptionPlan::findOrFail($id);
-        return response()->json($plan);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $plan,
+        ]);
     }
 
     // Update an existing plan
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
-        $id = $request->input('id');
         $plan = SubscriptionPlan::findOrFail($id);
 
         $validated = $request->validate([
-            'name'        => 'sometimes|string|max:255',
+            'name'        => 'sometimes|string',
             'description' => 'nullable|string',
-            'price'       => 'sometimes|numeric|min:0',
+            'price'       => 'sometimes|numeric',
             'features'    => 'sometimes|array',
             'is_active'   => 'boolean',
         ]);
 
-        if (isset($validated['features'])) {
-            $validated['features'] = json_encode($validated['features']);
-        }
-
         $plan->update($validated);
 
-        return response()->json($plan);
+        return response()->json([
+            'status' => 'success',
+            'data' => $plan,
+        ]);
     }
 
     // Delete a plan
-    public function destroy(Request $request)
+    public function destroy($id)
     {
-        $id = $request->input('id');
         $plan = SubscriptionPlan::findOrFail($id);
         $plan->delete();
 
-        return response()->json(['message' => 'Subscription plan deleted successfully.']);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Subscription plan deleted successfully.',
+        ]);
     }
 }

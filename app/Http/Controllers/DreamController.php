@@ -12,35 +12,42 @@ class DreamController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
-    {
-        // Get the currently authenticated user
-        $user = auth()->user();
+    // public function index(Request $request, $id)
+    // {
+    //     // Get the currently authenticated user
+    //     $//user = auth()->user();
 
-        // Get the 'page' query parameter for pagination, defaulting to 1 if not provided
-        $page = $request->input('page', 1);
+    //     // Get the 'page' query parameter for pagination, defaulting to 1 if not provided
+    //     //$page = $request->input('page', 1);
 
-        // Get the 'per_page' query parameter for pagination, defaulting to 10 if not provided
-        $perPage = $request->input('per_page', 10);
+    //     // Get the 'per_page' query parameter for pagination, defaulting to 10 if not provided
+    //     //$perPage = $request->input('per_page', 10);
 
+    //     // Get all dreams where 'is_shared' is true, and include the related interpretation data
+    //     // Additionally, we will check if the user has this dream as a favorite using the favoritedBy() relation
+    //     $chosenDreams = Dream::where('is_shared', true)
+    //                         ->with(['interpretation', 'favoritedBy' => function ($query) use ($user) {
+    //                             $query->where('user_id', $user->id); // Only get the favorite if it belongs to the authenticated user
+    //                         }])
+    //                         ->orderBy('created_at', 'desc')  // Optional: Adjust sorting if needed
+    //                         ->paginate($perPage, ['id', 'title', 'description']);  // Include 'id', 'title', 'description'
+
+    //     // Add an 'is_favorite' field to each dream (true or false) based on the pivot table data
+    //     $chosenDreams->getCollection()->transform(function ($dream) use ($user) {
+    //         $dream->is_favorite = $dream->favoritedBy->isNotEmpty();  // Check if the user has this dream in their favorites
+    //         return $dream;
+    // });
+    public function index(){
         // Get all dreams where 'is_shared' is true, and include the related interpretation data
         // Additionally, we will check if the user has this dream as a favorite using the favoritedBy() relation
         $chosenDreams = Dream::where('is_shared', true)
-                            ->with(['interpretation', 'favoritedBy' => function ($query) use ($user) {
-                                $query->where('user_id', $user->id); // Only get the favorite if it belongs to the authenticated user
-                            }])
+                            ->with(['interpretation'])
                             ->orderBy('created_at', 'desc')  // Optional: Adjust sorting if needed
-                            ->paginate($perPage, ['id', 'title', 'description']);  // Include 'id', 'title', 'description'
+                            ->get(['id', 'title', 'description']);  // Include 'id', 'title', 'description'
 
-        // Add an 'is_favorite' field to each dream (true or false) based on the pivot table data
-        $chosenDreams->getCollection()->transform(function ($dream) use ($user) {
-            $dream->is_favorite = $dream->favoritedBy->isNotEmpty();  // Check if the user has this dream in their favorites
-            return $dream;
-    });
-
-    // Return the paginated dreams as a JSON response
-    return response()->json($chosenDreams);
+        return response()->json($chosenDreams);
     }
+
 
     // Store a new dream
     public function store(Request $request)
@@ -60,7 +67,7 @@ class DreamController extends Controller
     }
 
     // Show a specific dream
-    public function show(Request $request)
+    public function show(Request $request, $id)
     {
         // Get the dream ID from the request
         $id = $request->input('id');
@@ -99,7 +106,7 @@ class DreamController extends Controller
     }
 
     // Delete a dream
-    public function destroy(Request $request)
+    public function destroy(Request $request, $id)
     {
         $id = $request->input('id');
         $dream = Dream::find($id);

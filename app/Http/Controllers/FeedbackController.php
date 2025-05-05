@@ -13,8 +13,23 @@ class FeedbackController extends Controller
      */
     public function index()
     {
-        $feedbacks = Feedback::with(['user', 'interpreter', 'interpretation', 'dream'])->latest()->get();
-        return response()->json($feedbacks);
+        try {
+            $feedbacks = Feedback::with(['user', 'interpreter', 'interpretation', 'dream'])
+                ->latest()
+                ->get();
+            
+            return response()->json([
+                'success' => true,
+                'data' => $feedbacks,
+                'message' => 'Feedbacks retrieved successfully.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve feedbacks.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -22,30 +37,48 @@ class FeedbackController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'interpreter_id' => 'required|exists:interpreters,id',
-            'interpretation_id' => 'required|exists:interpretations,id',
-            'dream_id' => 'required|exists:dreams,id',
-            'feedback_text' => 'required|string|min:10',
-            'rating' => 'required|integer|min:1|max:5',
-        ]);
+        try {
+            $validated = $request->validate([
+                // In production, you would use Auth::id() instead
+                'user_id' => 'required|exists:users,id',
+                'interpreter_id' => 'required|exists:interpreters,id',
+                'interpretation_id' => 'required|exists:interpretations,id',
+                'dream_id' => 'required|exists:dreams,id',
+                'feedback_text' => 'required|string|min:10',
+                'rating' => 'required|integer|min:1|max:5',
+            ]);
 
-        $feedback = Feedback::create([
-            'user_id' => Auth::id(),
-            'interpreter_id' => $validated['interpreter_id'],
-            'interpretation_id' => $validated['interpretation_id'],
-            'dream_id' => $validated['dream_id'],
-            'feedback_text' => $validated['feedback_text'],
-            'rating' => $validated['rating'],
-        ]);
+            $feedback = Feedback::create([
+                'user_id' => $validated['user_id'], // Replace with Auth::id() in production
+                'interpreter_id' => $validated['interpreter_id'],
+                'interpretation_id' => $validated['interpretation_id'],
+                'dream_id' => $validated['dream_id'],
+                'feedback_text' => $validated['feedback_text'],
+                'rating' => $validated['rating'],
+            ]);
 
-        // Recalculate interpreter rating
-        $feedback->interpreter->updateRating();
+            // Recalculate interpreter rating
+            $feedback->interpreter->updateRating();
 
-        return response()->json([
-            'message' => 'Feedback submitted successfully.',
-            'feedback' => $feedback,
-        ], 201);
+            return response()->json([
+                'success' => true,
+                'data' => $feedback,
+                'message' => 'Feedback submitted successfully.'
+            ], 201);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to submit feedback.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -53,7 +86,19 @@ class FeedbackController extends Controller
      */
     public function show(Feedback $feedback)
     {
-        return response()->json($feedback->load(['user', 'interpreter', 'interpretation', 'dream']));
+        try {
+            return response()->json([
+                'success' => true,
+                'data' => $feedback->load(['user', 'interpreter', 'interpretation', 'dream']),
+                'message' => 'Feedback retrieved successfully.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve feedback.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -61,20 +106,38 @@ class FeedbackController extends Controller
      */
     public function update(Request $request, Feedback $feedback)
     {
-        $validated = $request->validate([
-            'feedback_text' => 'sometimes|string|min:10',
-            'rating' => 'sometimes|integer|min:1|max:5',
-        ]);
+        try {
+            $validated = $request->validate([
+                'feedback_text' => 'sometimes|string|min:10',
+                'rating' => 'sometimes|integer|min:1|max:5',
+            ]);
 
-        $feedback->update($validated);
+            $feedback->update($validated);
 
-        // Recalculate interpreter rating
-        $feedback->interpreter->updateRating();
+            // Recalculate interpreter rating if rating was updated
+            if (isset($validated['rating'])) {
+                $feedback->interpreter->updateRating();
+            }
 
-        return response()->json([
-            'message' => 'Feedback updated.',
-            'feedback' => $feedback,
-        ]);
+            return response()->json([
+                'success' => true,
+                'data' => $feedback,
+                'message' => 'Feedback updated successfully.'
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update feedback.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -82,12 +145,24 @@ class FeedbackController extends Controller
      */
     public function destroy(Feedback $feedback)
     {
-        $interpreter = $feedback->interpreter; // save interpreter reference
-        $feedback->delete();
+        try {
+            $interpreter = $feedback->interpreter;
+            $feedback->delete();
 
-        // Recalculate interpreter rating after deletion
-        $interpreter->updateRating();
+            // Recalculate interpreter rating after deletion
+            $interpreter->updateRating();
 
-        return response()->json(['message' => 'Feedback deleted.']);
+            return response()->json([
+                'success' => true,
+                'message' => 'Feedback deleted successfully.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete feedback.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

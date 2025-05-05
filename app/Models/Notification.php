@@ -15,6 +15,7 @@ class Notification extends Model
         'link',
         'link_type',
         'timestamp',
+        'img_path',   
         'read_at',  // Add read_at to fillable to allow mass assignment
     ];
 }

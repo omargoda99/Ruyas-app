@@ -2,89 +2,210 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Models\UserSubscriptionCoupon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class UserSubscriptionCouponController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of all user subscriptions.
      */
     public function index()
     {
-        $subscriptions = DB::table('user_subscription_coupon')->get();
-        return response()->json($subscriptions);
+        $subscriptions = DB::table('user_subscription_coupon')
+            ->join('users', 'user_subscription_coupon.user_id', '=', 'users.id')
+            ->join('subscription_plans', 'user_subscription_coupon.plan_id', '=', 'subscription_plans.id')
+            ->leftJoin('coupons', 'user_subscription_coupon.coupon_id', '=', 'coupons.id')
+            ->select(
+                'user_subscription_coupon.id',
+                'user_subscription_coupon.user_id',
+                'user_subscription_coupon.plan_id',
+                'user_subscription_coupon.coupon_id',
+                'user_subscription_coupon.starts_at',
+                'user_subscription_coupon.ends_at',
+                'user_subscription_coupon.is_active',
+                'user_subscription_coupon.purchased_at',
+                'users.name as user_name',
+                'subscription_plans.name as plan_name',
+                'coupons.code as coupon_code'
+            )
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $subscriptions,
+        ]);
     }
 
-    // Create a new subscription
+    /**
+     * Store a newly created user subscription.
+     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'user_id'     => 'required|exists:users,id',
-            'plan_id'     => 'required|exists:subscription_plans,id',
-            'coupon_id'   => 'nullable|exists:coupons,id',
-            'starts_at'   => 'required|date',
-            'ends_at'     => 'nullable|date|after_or_equal:starts_at',
-            'is_active'   => 'boolean',
-            'purchased_at'=> 'nullable|date',
-        ]);
+        try {
+            $validated = $request->validate([
+                'user_id'      => 'required|exists:users,id',
+                'plan_id'      => 'required|exists:subscription_plans,id',
+                'coupon_id'    => 'nullable|exists:coupons,id',
+                'starts_at'    => 'required|date',
+                'ends_at'      => 'nullable|date|after_or_equal:starts_at',
+                'is_active'    => 'boolean',
+                'purchased_at' => 'nullable|date',
+            ]);
 
-        $validated['purchased_at'] = $validated['purchased_at'] ?? now();
+            $validated['purchased_at'] = $validated['purchased_at'] ?? now();
 
-        $id = DB::table('user_subscription_coupon')->insertGetId($validated);
+            $id = DB::table('user_subscription_coupon')->insertGetId($validated);
 
-        $subscription = DB::table('user_subscription_coupon')->find($id);
+            $subscription = DB::table('user_subscription_coupon')
+                ->join('users', 'user_subscription_coupon.user_id', '=', 'users.id')
+                ->join('subscription_plans', 'user_subscription_coupon.plan_id', '=', 'subscription_plans.id')
+                ->leftJoin('coupons', 'user_subscription_coupon.coupon_id', '=', 'coupons.id')
+                ->select(
+                    'user_subscription_coupon.id',
+                    'user_subscription_coupon.user_id',
+                    'user_subscription_coupon.plan_id',
+                    'user_subscription_coupon.coupon_id',
+                    'user_subscription_coupon.starts_at',
+                    'user_subscription_coupon.ends_at',
+                    'user_subscription_coupon.is_active',
+                    'user_subscription_coupon.purchased_at',
+                    'users.name as user_name',
+                    'subscription_plans.name as plan_name',
+                    'coupons.code as coupon_code'
+                )
+                ->where('user_subscription_coupon.id', $id)
+                ->first();
 
-        return response()->json($subscription, 201);
+            return response()->json([
+                'status' => 'created',
+                'data' => $subscription,
+            ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        }
     }
 
-    // Show a single subscription
+    /**
+     * Display a single user subscription.
+     */
     public function show($id)
     {
-        $subscription = DB::table('user_subscription_coupon')->find($id);
+        $subscription = DB::table('user_subscription_coupon')
+            ->join('users', 'user_subscription_coupon.user_id', '=', 'users.id')
+            ->join('subscription_plans', 'user_subscription_coupon.plan_id', '=', 'subscription_plans.id')
+            ->leftJoin('coupons', 'user_subscription_coupon.coupon_id', '=', 'coupons.id')
+            ->select(
+                'user_subscription_coupon.id',
+                'user_subscription_coupon.user_id',
+                'user_subscription_coupon.plan_id',
+                'user_subscription_coupon.coupon_id',
+                'user_subscription_coupon.starts_at',
+                'user_subscription_coupon.ends_at',
+                'user_subscription_coupon.is_active',
+                'user_subscription_coupon.purchased_at',
+                'users.name as user_name',
+                'subscription_plans.name as plan_name',
+                'coupons.code as coupon_code'
+            )
+            ->where('user_subscription_coupon.id', $id)
+            ->first();
 
         if (!$subscription) {
-            return response()->json(['message' => 'Subscription not found.'], 404);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Subscription not found.',
+            ], 404);
         }
 
-        return response()->json($subscription);
+        return response()->json([
+            'status' => 'success',
+            'data' => $subscription,
+        ]);
     }
 
-    // Update subscription
+    /**
+     * Update an existing subscription.
+     */
     public function update(Request $request, $id)
     {
         $subscription = DB::table('user_subscription_coupon')->find($id);
 
         if (!$subscription) {
-            return response()->json(['message' => 'Subscription not found.'], 404);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Subscription not found.',
+            ], 404);
         }
 
-        $validated = $request->validate([
-            'starts_at'    => 'sometimes|date',
-            'ends_at'      => 'nullable|date|after_or_equal:starts_at',
-            'coupon_id'    => 'nullable|exists:coupons,id',
-            'is_active'    => 'boolean',
-            'purchased_at' => 'nullable|date',
-        ]);
+        try {
+            $validated = $request->validate([
+                'starts_at'    => 'sometimes|date',
+                'ends_at'      => 'nullable|date|after_or_equal:starts_at',
+                'coupon_id'    => 'nullable|exists:coupons,id',
+                'is_active'    => 'boolean',
+                'purchased_at' => 'nullable|date',
+            ]);
 
-        DB::table('user_subscription_coupon')->where('id', $id)->update($validated);
+            DB::table('user_subscription_coupon')->where('id', $id)->update($validated);
 
-        return response()->json(DB::table('user_subscription_coupon')->find($id));
+            $updated = DB::table('user_subscription_coupon')
+                ->join('users', 'user_subscription_coupon.user_id', '=', 'users.id')
+                ->join('subscription_plans', 'user_subscription_coupon.plan_id', '=', 'subscription_plans.id')
+                ->leftJoin('coupons', 'user_subscription_coupon.coupon_id', '=', 'coupons.id')
+                ->select(
+                    'user_subscription_coupon.id',
+                    'user_subscription_coupon.user_id',
+                    'user_subscription_coupon.plan_id',
+                    'user_subscription_coupon.coupon_id',
+                    'user_subscription_coupon.starts_at',
+                    'user_subscription_coupon.ends_at',
+                    'user_subscription_coupon.is_active',
+                    'user_subscription_coupon.purchased_at',
+                    'users.name as user_name',
+                    'subscription_plans.name as plan_name',
+                    'coupons.code as coupon_code'
+                )
+                ->where('user_subscription_coupon.id', $id)
+                ->first();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $updated,
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        }
     }
 
-    // Delete a subscription
+    /**
+     * Delete a user subscription.
+     */
     public function destroy($id)
     {
         $subscription = DB::table('user_subscription_coupon')->find($id);
 
         if (!$subscription) {
-            return response()->json(['message' => 'Subscription not found.'], 404);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Subscription not found.',
+            ], 404);
         }
 
-        DB::table('user_subscription_coupon')->delete($id);
+        DB::table('user_subscription_coupon')->where('id', $id)->delete();
 
-        return response()->json(['message' => 'Subscription deleted successfully.']);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Subscription deleted successfully.',
+        ]);
     }
 }

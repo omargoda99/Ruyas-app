@@ -64,21 +64,42 @@ class InterpreterController extends Controller
     public function update(Request $request, $id)
     {
         $interpreter = Interpreter::findOrFail($id);
-
-        $validated = $request->validate([
-            'name'                => 'required|string|max:255',
-            'email'               => 'required|email|unique:interpreters,email',
-            'password'            => 'nullable|string|min:6',
-            'age'                 => 'nullable|integer|min:0',
-            'gender'              => 'required|in:male,female',
-            'country'             => 'required|string',
-            'city'                => 'required|string',
-            'status'              => 'in:active,inactive,banned',
-            'languages'           => 'required|array',
-            'languages.*'         => 'required|string',
-            'years_of_experience' => 'required|integer|min:0',
-            'memorized_quran_parts'=> 'required|integer|min:0|max:31',
-            'nationality'         => 'required|string',
+    
+        try {
+            $validated = $request->validate([
+                'name'                => 'required|string|max:255',
+                'email'               => 'required|email|unique:interpreters,email,' . $id,
+                'password'            => 'nullable|string|min:6',
+                'age'                 => 'nullable|integer|min:0',
+                'gender'              => 'required|in:male,female',
+                'country'             => 'required|string',
+                'city'                => 'required|string',
+                'status'              => 'in:active,inactive,banned',
+                'languages'           => 'required|array',
+                'languages.*'         => 'required|string',
+                'years_of_experience' => 'required|integer|min:0',
+                'memorized_quran_parts'=> 'required|integer|min:0|max:31',
+                'nationality'         => 'required|string',
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        }
+    
+        if (!empty($validated['password'])) {
+            $validated['password'] = \Hash::make($validated['password']);
+        } else {
+            unset($validated['password']);
+        }
+    
+        $interpreter->update($validated);
+    
+        return response()->json([
+            'status' => 'success',
+            'data' => $interpreter
         ]);
 
         // If password is provided, hash it
