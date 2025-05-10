@@ -4,19 +4,37 @@ use App\Http\Controllers\AdController;
 use App\Http\Controllers\AdminActionController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AppGuideController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CertificationController;
+use App\Http\Controllers\ComplainController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\DreamController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\InterpretationController;
 use App\Http\Controllers\InterpreterController;
 use App\Http\Controllers\SubscriptionPlanController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\UserSubscriptionCouponController;
-use App\Http\Controllers\FeedbackController;
-use App\Http\Controllers\ComplainController;
 
+use App\Http\Controllers\UserSubscriptionCouponController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+// Middleware For all Routes We want to be authenticated before enter it
+Route::middleware(['jwt.verify'])->group(function(){
+
+});
+
+    Route::group([
+        'middleware'=>'api',
+        'prefix'=>'auth'
+    ],function($router){
+    Route::post('/login',[AuthController::class,'login']);
+    Route::post('/register',[AuthController::class,'register']);
+    Route::post('/logout',[AuthController::class,'logout']);
+    Route::post('/refresh',[AuthController::class,'refresh']);
+    Route::get('/user-profile',[AuthController::class,'userProfile']);
+});
+
 
 
   // App_Guide Controller
@@ -35,7 +53,7 @@ use Illuminate\Support\Facades\Route;
         Route::put('ads/{id}',[AdController::class,  'update']);
         Route::delete('ads/{id}',[AdController::class, 'destroy']);
 
-        // I added the sub plans routes down there 
+        // I added the sub plans routes down there
 
 
         // Chosen Dreams
@@ -72,9 +90,12 @@ Route::group(['middleware' => ['api', 'checkblocked']], function () {
     Route::get('/terms', 'App\Http\Controllers\TermsController@terms');
 
     // Authentication Routes
-    Route::post('/login', 'App\Http\Controllers\Auth\LoginController@login');
-    Route::post('/register', 'App\Http\Controllers\Auth\RegisterController@register');
-    Route::post('/logout', 'App\Http\Controllers\Auth\LoginController@logout')->middleware('auth:api');
+    // Route::post('/login', 'App\Http\Controllers\Auth\LoginController@login');
+    // Route::post('/register', 'App\Http\Controllers\Auth\RegisterController@register');
+    // Route::post('/logout', 'App\Http\Controllers\Auth\LoginController@logout')->middleware('auth:api');
+
+
+
 
     // Activation Routes
     Route::get('/activate', 'App\Http\Controllers\Auth\ActivateController@initial');
@@ -93,9 +114,6 @@ Route::group(['middleware' => ['api', 'checkblocked']], function () {
 // Authenticated Routes
 Route::group(['middleware' => ['auth:api', 'activated', 'activity', 'checkblocked']], function () {
     Route::get('/activation-required', 'App\Http\Controllers\Auth\ActivateController@activationRequired');
-
-
-
 
 
 

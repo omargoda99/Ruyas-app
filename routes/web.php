@@ -17,6 +17,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::middleware(['jwt.verify', 'admin'])->group(function () {
+    
+    // Add other routes for admin here
+});
+
+
 // Homepage Route
 Route::group(['middleware' => ['web', 'checkblocked']], function () {
     Route::get('/', 'App\Http\Controllers\WelcomeController@welcome')->name('welcome');

@@ -22,7 +22,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
-        \App\Http\Middleware\UpdateLastActivity::class, 
+        \App\Http\Middleware\UpdateLastActivity::class,
     ];
 
     /**
@@ -72,5 +72,7 @@ class Kernel extends HttpKernel
         'permission'        => \jeremykenedy\LaravelRoles\App\Http\Middleware\VerifyPermission::class,
         'level'             => \jeremykenedy\LaravelRoles\App\Http\Middleware\VerifyLevel::class,
         'currentUser'       => \App\Http\Middleware\CheckCurrentUser::class,
+        'jwt.verify'        => \App\Http\Middleware\JwtMiddleware::class,
+        'admin'             => \App\Http\Middleware\AdminMiddleware::class,
     ];
 }

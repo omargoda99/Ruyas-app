@@ -10,8 +10,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use jeremykenedy\LaravelRoles\Traits\HasRoleAndPermission;
 use Laravel\Sanctum\HasApiTokens;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, HasRoleAndPermission, Notifiable, SoftDeletes;
 
@@ -23,7 +24,7 @@ class User extends Authenticatable
     use SoftDeletes; // This enables soft deletes for the User model
     protected $table = 'users';
 
-    
+
     /**
      * Indicates if the model should be timestamped.
      *
@@ -61,6 +62,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
         'password',
         'age',
         'gender',
@@ -90,8 +92,8 @@ class User extends Authenticatable
      */
     protected $casts = [
         'id'                                => 'integer',
-        'first_name'                        => 'string',
-        'last_name'                         => 'string',
+        'name'                        => 'string',
+        'phone'                         => 'string',
         'email'                             => 'string',
         'password'                          => 'string',
         'activated'                         => 'boolean',
@@ -107,7 +109,15 @@ class User extends Authenticatable
         'deleted_at'                        => 'datetime',
     ];
 
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
 
+    public function getJWTCustomClaims()
+    {
+        return[];
+    }
     public function favoriteDreams()
     {
         return $this->belongsToMany(Dream::class, 'user_dream_favorites')
@@ -203,7 +213,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(Complain::class);
     }
-    
+
 
     public function subscriptionCoupons(): \Illuminate\Database\Eloquent\Relations\HasMany
     {

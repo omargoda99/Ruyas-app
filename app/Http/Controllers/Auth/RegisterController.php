@@ -79,7 +79,7 @@ class RegisterController extends Controller
         $user = User::create([
             'name'              => strip_tags($data['name']),
             'email'             => $data['email'],
-            'password_hash'          => Hash::make($data['password']),
+            'password'          => Hash::make($data['password']),
             // 'token'             => str()->random(64),
             // 'signup_ip_address' => $ip,
             // 'activated'         => $activated,

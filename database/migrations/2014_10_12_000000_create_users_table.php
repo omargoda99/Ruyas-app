@@ -16,9 +16,10 @@ public function up()
 {
     Schema::create('users', function (Blueprint $table) {
         $table->id();
-        $table->string('name');
-        $table->string('email')->unique();
-        $table->string('password_hash');
+        $table->string('name')->nullable();
+        $table->string('email')->nullable()->unique(); // Nullable because phone can be used
+        $table->string('phone')->nullable()->unique();  // Nullable because email can be used
+        $table->string('password');
         $table->integer('age')->nullable();
         $table->enum('marital_status', ['single', 'married', 'divorced', 'widowed'])->nullable();
         $table->enum('gender', ['male', 'female']);

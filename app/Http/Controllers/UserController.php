@@ -32,8 +32,9 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name'              => 'required|string|max:255',
-            'email'             => 'required|email|unique:users,email',
-            'password'          => 'required|string|min:6',
+            'email'             => 'nullable|email|string|max:100|unique:users,email', // Email is optional
+            'phone'             => 'nullable|string|max:15|unique:users,phone', // Phone is optional
+            'password'          => 'required|string|min:6|confirmed', // Password and confirmation
             'age'               => 'nullable|integer',
             'marital_status'    => ['nullable', Rule::in(['single', 'married', 'divorced', 'widowed'])],
             'gender'            => ['required', Rule::in(['male', 'female'])],
@@ -47,13 +48,22 @@ class UserController extends Controller
             'status'            => ['nullable', Rule::in(['active', 'inactive', 'banned'])],
         ]);
 
+        // Ensure at least one of the email or phone is provided
+        if (!$request->has('email') && !$request->has('phone')) {
+            return response()->json(['message' => 'Please provide either an email or a phone number.'], 400);
+        }
+
+        // Hash the password
         $validated['password_hash'] = Hash::make($validated['password']);
         unset($validated['password']);
 
+        // Create the user with either email or phone
         $user = User::create($validated);
 
         return response()->json($user, 201);
     }
+
+
 
     // Show a single user
     public function show($id)

@@ -41,7 +41,8 @@
     "socialiteproviders/linkedin": "^4.2",
     "socialiteproviders/twitch": "^5.3",
     "socialiteproviders/youtube": "^4.1",
-    "filament/filament": "*"
+    "filament/filament": "*",
+    "tymon/jwt-auth": "^2.2"
   },
   "require-dev": {
     "fakerphp/faker": "^1.9.1",
