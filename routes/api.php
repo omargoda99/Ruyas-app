@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AppGuideController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CertificationController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ComplainController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\DreamController;
@@ -13,11 +14,12 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\InterpretationController;
 use App\Http\Controllers\InterpreterController;
 use App\Http\Controllers\SubscriptionPlanController;
-use App\Http\Controllers\UserController;
 
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserSubscriptionCouponController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 // Middleware For all Routes We want to be authenticated before enter it
 Route::middleware(['jwt.verify'])->group(function(){
@@ -72,6 +74,19 @@ Route::middleware(['jwt.verify'])->group(function(){
         Route::get('user/favorites', [DreamController::class, 'getFavoriteDreams']);
         // Route to get all dreams created by the authenticated user
         Route::get('user/dreams', [DreamController::class, 'getMyDreams']);
+
+        // Chat
+         Route::group([
+        'prefix'=>'/chat'
+    ],function($router){
+        // Start a new conversation
+        Route::post('/start-conversation', [ChatController::class, 'startConversation']);
+        // Send a message (text or voice)
+        Route::post('/send-message', [ChatController::class, 'sendMessage']);
+        // Get all messages in a conversation
+        Route::get('/get-messages', [ChatController::class, 'getMessages']);
+});
+
 /*
 |--------------------------------------------------------------------------
 | API Routes

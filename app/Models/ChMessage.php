@@ -12,7 +12,17 @@ class ChMessage extends Model
     protected $table = 'ch_messages';
 
     // Define the fillable fields
-    protected $fillable = ['from_id', 'to_id', 'body', 'attachment', 'seen', 'conversation_id', 'sender_type', 'receiver_type'];
+    protected $fillable = [
+    'conversation_id',
+    'from_id',
+    'to_id',
+    'body',
+    'attachment',
+    'voice', // ✅ Add this line
+    'seen',
+    'sender_type',
+    'receiver_type',
+];
 
     // Define the polymorphic relationship to sender (User or Interpreter)
     public function sender()

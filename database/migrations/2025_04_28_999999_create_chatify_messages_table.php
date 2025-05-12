@@ -18,8 +18,9 @@ class CreateChatifyMessagesTable extends Migration
             $table->foreignId('conversation_id')->constrained('conversations');
             $table->foreignId('from_id');
             $table->foreignId('to_id');
-            $table->text('body');
+            $table->text('body')->nullable();
             $table->string('attachment')->nullable();
+            $table->string('voice')->nullable();
             $table->boolean('seen')->default(false);
             $table->string('sender_type');
             $table->string('receiver_type');
