@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -63,38 +64,41 @@ class AuthController extends Controller
     {
         // Validate the request input
         $validator = Validator::make($request->all(), [
-            'email'                 => 'nullable|email|string|max:100|unique:users',
-            'phone'                 => 'nullable|string|max:15|unique:users',
-            'password'              => 'required|string|min:6|confirmed', // Ensure password confirmation
+            'email'    => 'nullable|email|string|max:100|unique:users',
+            'phone'    => 'nullable|string|max:15|unique:users',
+            'password' => 'required|string|min:6|confirmed',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors()->toJson(), 422);
         }
 
-        // Check if the user is registering with email or phone number
-        if ($request->has('email')) {
-            $user = User::create(array_merge(
-                $validator->validated(),
-                ['password' => bcrypt($request->password)]
-            ));
-        } elseif ($request->has('phone')) {
-            // Handle registration with phone number
-            $user = User::create(array_merge(
-                $validator->validated(),
-                ['password' => bcrypt($request->password)]
-            ));
+        // Generate a name based on whether it's email or phone registration
+        if ($request->filled('email')) {
+            $email = $request->email;
+            $name = strstr($email, '@', true); // part before @
+        } elseif ($request->filled('phone')) {
+            $name = 'user_' . Str::random(6); // random string like user_xz39lk
         } else {
             return response()->json([
                 'message' => 'Please provide either an email or a phone number.'
             ], 400);
         }
 
+        // Create the user
+        $user = User::create([
+            'name'     => $name,
+            'email'    => $request->email,
+            'phone'    => $request->phone,
+            'password' => bcrypt($request->password),
+        ]);
+
         return response()->json([
             'message' => 'User registered successfully',
             'user'    => $user
         ], 201);
     }
+
     public function logout(){
         auth()->logout();
         return response()->json(['message'=>'user signed out successfully']);
@@ -120,9 +124,19 @@ class AuthController extends Controller
             return response()->json(['message' => 'Not authorized'], 401);
         }
 
-        // Return user profile if authenticated
-        return response()->json(auth()->user());
+        // Get authenticated user
+        $user = auth()->user();
+
+        // Return only selected fields
+        return response()->json([
+            'name'            => $user->name,
+            'email'           => $user->email,
+            'phone'           => $user->phone,
+            'age'             => $user->age,
+            'marital_status'  => $user->marital_status,
+        ]);
     }
+
 
     public function createNewToken($token){
         return response()->json([

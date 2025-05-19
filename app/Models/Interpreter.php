@@ -21,6 +21,12 @@ class Interpreter extends Model
         'languages' => 'array', // Automatically cast JSON to array
     ];
 
+        // In Interpreter model
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     /**
      * Relationship with certifications (one-to-many)
      */

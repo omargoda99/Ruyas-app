@@ -13,12 +13,14 @@ use App\Http\Controllers\DreamController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\InterpretationController;
 use App\Http\Controllers\InterpreterController;
-use App\Http\Controllers\SubscriptionPlanController;
+use App\Http\Controllers\InterpreterRequestController;
 
+use App\Http\Controllers\SubscriptionPlanController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserSubscriptionCouponController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 
 // Middleware For all Routes We want to be authenticated before enter it
@@ -86,6 +88,11 @@ Route::middleware(['jwt.verify'])->group(function(){
         // Get all messages in a conversation
         Route::get('/get-messages', [ChatController::class, 'getMessages']);
 });
+
+    // Interpreter Requests
+    Route::post('/interpreter-request', [InterpreterRequestController::class, 'store']);
+
+
 
 /*
 |--------------------------------------------------------------------------

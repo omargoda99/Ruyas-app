@@ -214,6 +214,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Complain::class);
     }
 
+    public function interpreter()
+    {
+        return $this->hasOne(Interpreter::class, 'user_id');
+    }
 
     public function subscriptionCoupons(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
