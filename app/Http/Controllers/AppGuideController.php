@@ -46,8 +46,9 @@ class AppGuideController extends Controller
     /**
      * Display the specified guide by UUID.
      */
-    public function show($uuid)
+    public function show(Request $request)
     {
+        $uuid = $request->input('uuid');
         $guide = AppGuide::where('uuid', $uuid)->firstOrFail();
         return response()->json($guide);
     }
@@ -55,8 +56,9 @@ class AppGuideController extends Controller
     /**
      * Update the specified guide by UUID.
      */
-    public function update(Request $request, $uuid)
+    public function update(Request $request)
     {
+        $uuid = $request->input('uuid');
         $guide = AppGuide::where('uuid', $uuid)->firstOrFail();
 
         $oldImage = $guide->image_path;
@@ -88,8 +90,9 @@ class AppGuideController extends Controller
     /**
      * Remove the specified guide by UUID.
      */
-    public function destroy($uuid)
+    public function destroy(Request $request)
     {
+        $uuid = $request->input('uuid');
         $guide = AppGuide::where('uuid', $uuid)->firstOrFail();
 
         // Delete image if it exists

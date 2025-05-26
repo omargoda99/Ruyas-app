@@ -8,28 +8,22 @@ use Illuminate\Http\Request;
 
 class DreamController extends Controller
 {
-    /**
-     * Display a listing of all shared dreams with their interpretation.
-     * Returns dreams with UUID, title, description.
-     */
+    // Display a listing of all shared dreams
     public function index()
     {
         $chosenDreams = Dream::where('is_shared', true)
                         ->with('interpretation')
                         ->orderBy('created_at', 'desc')
-                        ->get(['uuid', 'title', 'description']);
+                        ->get(['dreams.uuid', 'title', 'description']);
 
         return response()->json($chosenDreams);
     }
 
-    /**
-     * Store a new dream.
-     * Accepts 'user_uuid' instead of user_id.
-     */
+    // Store a new dream using user UUID
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'user_uuid'     => 'required|exists:users,uuid',
+            'user_id'       => 'required|exists:users,uuid',
             'title'         => 'required|string|max:255',
             'description'   => 'nullable|string',
             'is_favorite'   => 'boolean',
@@ -37,11 +31,10 @@ class DreamController extends Controller
             'is_explained'  => 'boolean',
         ]);
 
-        // Find user by UUID to get internal ID for foreign key
-        $user = User::where('uuid', $validated['user_uuid'])->firstOrFail();
+        $user = User::where('uuid', $validated['user_id'])->firstOrFail();
 
         $dreamData = $validated;
-        unset($dreamData['user_uuid']);
+        unset($dreamData['user_id']);
         $dreamData['user_id'] = $user->id;
 
         $dream = Dream::create($dreamData);
@@ -49,11 +42,10 @@ class DreamController extends Controller
         return response()->json($dream, 201);
     }
 
-    /**
-     * Show a specific dream by UUID.
-     */
-    public function show($uuid)
+    // Show a specific dream by UUID
+    public function show(Request $request)
     {
+        $uuid = $request->input('uuid');
         $dream = Dream::with('interpretation')->where('uuid', $uuid)->first();
 
         if (!$dream) {
@@ -63,9 +55,7 @@ class DreamController extends Controller
         return response()->json($dream);
     }
 
-    /**
-     * Update a dream by UUID.
-     */
+    // Update a dream by UUID
     public function update(Request $request, $uuid)
     {
         $dream = Dream::where('uuid', $uuid)->firstOrFail();
@@ -83,11 +73,10 @@ class DreamController extends Controller
         return response()->json($dream);
     }
 
-    /**
-     * Delete a dream by UUID.
-     */
-    public function destroy($uuid)
+    // Delete a dream by UUID
+    public function destroy(Request $request)
     {
+        $uuid = $request->input('uuid');
         $dream = Dream::where('uuid', $uuid)->first();
 
         if (!$dream) {
@@ -99,56 +88,45 @@ class DreamController extends Controller
         return response()->json(['message' => 'Dream deleted successfully.']);
     }
 
-    /**
-     * Add a dream to the authenticated user's favorites.
-     * Dream identified by UUID.
-     */
+    // Add a dream to favorites (UUID-based)
     public function addFavorite(Request $request)
     {
+        $uuid = $request->input('uuid');
         $user = auth()->user();
 
-        $dream = Dream::where('uuid', $request->dream_uuid)->firstOrFail();
+        $dream = Dream::where('uuid', $uuid)->firstOrFail();
 
-        // Attach dream internal id to user's favorites pivot
         $user->favoriteDreams()->syncWithoutDetaching($dream->id);
 
         return response()->json(['message' => 'Dream added to favorites']);
     }
 
-    /**
-     * Remove a dream from the authenticated user's favorites.
-     * Dream identified by UUID.
-     */
+    // Remove a dream from favorites (UUID-based)
     public function removeFavorite(Request $request)
     {
+        $uuid = $request->input('uuid');
         $user = auth()->user();
 
-        $dream = Dream::where('uuid', $request->dream_uuid)->firstOrFail();
+        $dream = Dream::where('uuid', $uuid)->firstOrFail();
 
         $user->favoriteDreams()->detach($dream->id);
 
         return response()->json(['message' => 'Dream removed from favorites']);
     }
 
-    /**
-     * Get all favorite dreams of the authenticated user.
-     * Returns dreams with UUID, title, description.
-     */
+    // ✅ Fix ambiguous UUID issue by prefixing table name
     public function getFavoriteDreams()
     {
         $user = auth()->user();
 
         $favoriteDreams = $user->favoriteDreams()
-                              ->orderBy('created_at', 'desc')
-                              ->get(['uuid', 'title', 'description', 'is_explained']);
+            ->orderBy('dreams.created_at', 'desc') // fully qualify to avoid ambiguity
+            ->get(['dreams.uuid', 'dreams.title', 'dreams.description', 'dreams.is_explained']);
 
         return response()->json($favoriteDreams);
     }
 
-    /**
-     * Get all dreams created by the authenticated user.
-     * Returns dreams with UUID, title, description.
-     */
+    // Get dreams created by the authenticated user
     public function getMyDreams()
     {
         $user = auth()->user();

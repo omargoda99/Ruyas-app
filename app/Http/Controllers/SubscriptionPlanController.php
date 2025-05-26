@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\SubscriptionPlan;
 use Illuminate\Http\Request;
+use Laravel\Ui\Presets\React;
 
 class SubscriptionPlanController extends Controller
 {
     // Get all subscription plans
     public function index()
     {
-        $plans = SubscriptionPlan::select('id', 'name', 'description', 'price', 'features')->get();
+        $plans = SubscriptionPlan::select('uuid', 'name', 'description', 'price', 'features')->get();
 
         return response()->json([
             'status' => 'success',
@@ -37,10 +38,11 @@ class SubscriptionPlanController extends Controller
         ], 201);
     }
 
-    // Show a single plan
-    public function show($id)
+    // Show a single plan by UUID
+    public function show(Request $request)
     {
-        $plan = SubscriptionPlan::findOrFail($id);
+        $uuid = $request->input('uuid');
+        $plan = SubscriptionPlan::where('uuid', $uuid)->firstOrFail();
 
         return response()->json([
             'status' => 'success',
@@ -48,10 +50,11 @@ class SubscriptionPlanController extends Controller
         ]);
     }
 
-    // Update an existing plan
-    public function update(Request $request, $id)
+    // Update an existing plan by UUID
+    public function update(Request $request)
     {
-        $plan = SubscriptionPlan::findOrFail($id);
+        $uuid = $request->input('uuid');
+        $plan = SubscriptionPlan::where('uuid', $uuid)->firstOrFail();
 
         $validated = $request->validate([
             'name'        => 'sometimes|string',
@@ -69,10 +72,11 @@ class SubscriptionPlanController extends Controller
         ]);
     }
 
-    // Delete a plan
-    public function destroy($id)
+    // Delete a plan by UUID
+    public function destroy(Request $request)
     {
-        $plan = SubscriptionPlan::findOrFail($id);
+        $uuid = $request->input('uuid');
+        $plan = SubscriptionPlan::where('uuid', $uuid)->firstOrFail();
         $plan->delete();
 
         return response()->json([

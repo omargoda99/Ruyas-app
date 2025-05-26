@@ -69,8 +69,9 @@ class AdController extends Controller
         ], 201);
     }
 
-    public function show($uuid)
+    public function show(Request $request)
     {
+        $uuid = $request->input('uuid');
         $ad = Ad::where('uuid', $uuid)->first();
 
         if (!$ad) {
@@ -95,8 +96,9 @@ class AdController extends Controller
         ]);
     }
 
-    public function update(Request $request, $uuid)
+    public function update(Request $request)
     {
+        $uuid = $request->input('uuid');
         $ad = Ad::where('uuid', $uuid)->first();
 
         if (!$ad) {
@@ -132,8 +134,9 @@ class AdController extends Controller
         return response()->json(['status' => 'success', 'data' => $ad]);
     }
 
-    public function destroy($uuid)
+    public function destroy(Request $request)
     {
+        $uuid = $request->input('uuid');
         $ad = Ad::where('uuid', $uuid)->first();
 
         if (!$ad) {

@@ -55,9 +55,9 @@ Route::middleware(['jwt.verify'])->group(function(){
         // Ads Routes
         Route::get('ads',[AdController::class,  'index']);
         Route::post('ads',[AdController::class,  'store']);
-        Route::get('/ads/{id}', [AdController::class, 'show']);
-        Route::put('ads/{id}',[AdController::class,  'update']);
-        Route::delete('ads/{id}',[AdController::class, 'destroy']);
+        Route::get('ad', [AdController::class, 'show']);
+        Route::put('ads',[AdController::class,  'update']);
+        Route::delete('ads',[AdController::class, 'destroy']);
 
         // I added the sub plans routes down there
 
@@ -65,9 +65,9 @@ Route::middleware(['jwt.verify'])->group(function(){
         // Chosen Dreams
         Route::get('dreams',[DreamController::class, 'index']);
         Route::post('dreams',[DreamController::class, 'store']);
-        Route::get('dream/{id}',[DreamController::class, 'show']);
-        Route::put('dreams/{id}',[DreamController::class, 'update']);
-        Route::delete('dreams/{id}',[DreamController::class, 'destroy']);
+        Route::get('dream',[DreamController::class, 'show']);
+        Route::put('dreams',[DreamController::class, 'update']);
+        Route::delete('dreams',[DreamController::class, 'destroy']);
 
     // Favorite Dreams Page
         // Route to add a dream to favorites
@@ -185,10 +185,10 @@ Route::group(['middleware' => ['auth:api', 'activated', 'role:admin', 'activity'
 Route::apiResource('users', UserController::class);
 //Route::apiResource('subscription-plans', SubscriptionPlanController::class);
 Route::get('subscription-plans', [SubscriptionPlanController::class, 'index']); // Get all subscription plans
-Route::get('subscription-plans/{id}', [SubscriptionPlanController::class, 'show']); // Show one subscription plan
+Route::get('subscription-plan', [SubscriptionPlanController::class, 'show']); // Show one subscription plan
 Route::post('subscription-plans', [SubscriptionPlanController::class, 'store']); // Store a new subscription plan
-Route::put('subscription-plans/{id}', [SubscriptionPlanController::class, 'update']); // Update an existing plan
-Route::delete('subscription-plans/{id}', [SubscriptionPlanController::class, 'destroy']); // Delete a plan
+Route::put('subscription-plans', [SubscriptionPlanController::class, 'update']); // Update an existing plan
+Route::delete('subscription-plans', [SubscriptionPlanController::class, 'destroy']); // Delete a plan
 // Route::apiResource('coupons', CouponController::class);
 Route::get('coupons', [CouponController::class, 'index']); // Get all coupons
 Route::get('coupons/{id}', [CouponController::class, 'show']); // Show one coupon

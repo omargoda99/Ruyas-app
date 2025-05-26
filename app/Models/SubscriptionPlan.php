@@ -14,7 +14,7 @@ class SubscriptionPlan extends Model
     use HasFactory ,Uuid ;
 
     protected $fillable = [
-        'uuid',
+        'uuid', 
         'name',
         'description',
         'price',
