@@ -15,6 +15,7 @@ class ComplainController extends Controller
     public function index()
     {
         $complains = Complain::with(['user', 'interpreter'])->latest()->get();
+
         return response()->json([
             'status' => 'success',
             'data' => $complains
@@ -30,7 +31,6 @@ class ComplainController extends Controller
             $validated = $request->validate([
                 // temporarily for testing
                 'user_id' => 'required|exists:users,id',
-                //--------
                 'interpreter_id' => 'required|exists:interpreters,id',
                 'complain_text' => 'required|string|min:10',
             ]);
@@ -44,7 +44,6 @@ class ComplainController extends Controller
 
         $complain = Complain::create([
             'user_id' => $validated['user_id'],
-            // temporarily for testing
             'interpreter_id' => $validated['interpreter_id'],
             'complain_text' => $validated['complain_text'],
             'status' => Complain::STATUS_PENDING,
@@ -58,11 +57,11 @@ class ComplainController extends Controller
     }
 
     /**
-     * Display a single complain.
+     * Display a single complain using UUID.
      */
-    public function show($id)
+    public function show($uuid)
     {
-        $complain = Complain::with(['user', 'interpreter'])->findOrFail($id);
+        $complain = Complain::with(['user', 'interpreter'])->where('uuid', $uuid)->firstOrFail();
 
         return response()->json([
             'status' => 'success',
@@ -71,11 +70,11 @@ class ComplainController extends Controller
     }
 
     /**
-     * Update a complain.
+     * Update a complain using UUID.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $uuid)
     {
-        $complain = Complain::findOrFail($id);
+        $complain = Complain::where('uuid', $uuid)->firstOrFail();
 
         try {
             $validated = $request->validate([
@@ -99,11 +98,11 @@ class ComplainController extends Controller
     }
 
     /**
-     * Delete a complain.
+     * Delete a complain using UUID.
      */
-    public function destroy($id)
+    public function destroy($uuid)
     {
-        $complain = Complain::findOrFail($id);
+        $complain = Complain::where('uuid', $uuid)->firstOrFail();
         $complain->delete();
 
         return response()->json([

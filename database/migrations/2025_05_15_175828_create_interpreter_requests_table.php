@@ -13,6 +13,7 @@ return new class extends Migration
     {
        Schema::create('interpreter_requests', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->unsignedBigInteger('user_id')->unique(); // Each user can only request once
             $table->string('name');
             $table->string('email');

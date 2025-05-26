@@ -12,6 +12,7 @@ return new class extends Migration
     {
         Schema::create('certifications', function (Blueprint $table) {
             $table->id(); // Auto-incrementing ID for each certification
+            $table->uuid('uuid')->unique();
             $table->foreignId('interpreter_id')->constrained('interpreters')->onDelete('cascade'); // Foreign key to interpreters table
             $table->string('name'); // Certification name
             $table->string('issuing_organization'); // Issuing organization

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('complains', function (Blueprint $table) {
             $table->id(); // Auto-incrementing ID for each complain
+            $table->uuid('uuid')->unique();
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Foreign key to users table
             $table->foreignId('interpreter_id')->constrained()->onDelete('cascade'); // Foreign key to interpreters table
             $table->text('complain_text'); // Complain text

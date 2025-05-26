@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('feedbacks', function (Blueprint $table) {
             $table->id(); // Auto-incrementing ID for each feedback
+            $table->uuid('uuid')->unique();
             $table->foreignId('interpretation_id')->constrained()->onDelete('cascade'); // Foreign key to interpretations table
             $table->text('feedback_text'); // Feedback text
             $table->integer('rating')->default(0); // Rating (1-5)

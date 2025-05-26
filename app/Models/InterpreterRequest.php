@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class InterpreterRequest extends Model
 {
-    use HasFactory;
+    use HasFactory,Uuid;
 
       protected $fillable = [
-        'user_id','name','email','phone','age', 'gender', 'years_of_experience',
+        'uuid','user_id','name','email','phone','age', 'gender', 'years_of_experience',
         'memorized_quran_parts', 'languages', 'nationality',
         'country', 'city', 'status'
     ];

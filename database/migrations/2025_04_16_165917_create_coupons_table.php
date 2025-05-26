@@ -14,6 +14,7 @@ return new class extends Migration
     {
         Schema::create('coupons', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('code')->unique();
             $table->boolean('is_expired')->default(false);
             $table->timestamps();

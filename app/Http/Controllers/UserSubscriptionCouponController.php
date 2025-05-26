@@ -18,7 +18,7 @@ class UserSubscriptionCouponController extends Controller
             ->join('subscription_plans', 'user_subscription_coupon.plan_id', '=', 'subscription_plans.id')
             ->leftJoin('coupons', 'user_subscription_coupon.coupon_id', '=', 'coupons.id')
             ->select(
-                'user_subscription_coupon.id',
+                'user_subscription_coupon.uuid',
                 'user_subscription_coupon.user_id',
                 'user_subscription_coupon.plan_id',
                 'user_subscription_coupon.coupon_id',
@@ -56,14 +56,20 @@ class UserSubscriptionCouponController extends Controller
 
             $validated['purchased_at'] = $validated['purchased_at'] ?? now();
 
-            $id = DB::table('user_subscription_coupon')->insertGetId($validated);
+            // Generate UUID for the new subscription record
+            $uuid = (string) \Illuminate\Support\Str::uuid();
+
+            // Insert with UUID
+            DB::table('user_subscription_coupon')->insert(
+                array_merge($validated, ['uuid' => $uuid])
+            );
 
             $subscription = DB::table('user_subscription_coupon')
                 ->join('users', 'user_subscription_coupon.user_id', '=', 'users.id')
                 ->join('subscription_plans', 'user_subscription_coupon.plan_id', '=', 'subscription_plans.id')
                 ->leftJoin('coupons', 'user_subscription_coupon.coupon_id', '=', 'coupons.id')
                 ->select(
-                    'user_subscription_coupon.id',
+                    'user_subscription_coupon.uuid',
                     'user_subscription_coupon.user_id',
                     'user_subscription_coupon.plan_id',
                     'user_subscription_coupon.coupon_id',
@@ -75,7 +81,7 @@ class UserSubscriptionCouponController extends Controller
                     'subscription_plans.name as plan_name',
                     'coupons.code as coupon_code'
                 )
-                ->where('user_subscription_coupon.id', $id)
+                ->where('user_subscription_coupon.uuid', $uuid)
                 ->first();
 
             return response()->json([
@@ -92,16 +98,16 @@ class UserSubscriptionCouponController extends Controller
     }
 
     /**
-     * Display a single user subscription.
+     * Display a single user subscription by UUID.
      */
-    public function show($id)
+    public function show($uuid)
     {
         $subscription = DB::table('user_subscription_coupon')
             ->join('users', 'user_subscription_coupon.user_id', '=', 'users.id')
             ->join('subscription_plans', 'user_subscription_coupon.plan_id', '=', 'subscription_plans.id')
             ->leftJoin('coupons', 'user_subscription_coupon.coupon_id', '=', 'coupons.id')
             ->select(
-                'user_subscription_coupon.id',
+                'user_subscription_coupon.uuid',
                 'user_subscription_coupon.user_id',
                 'user_subscription_coupon.plan_id',
                 'user_subscription_coupon.coupon_id',
@@ -113,7 +119,7 @@ class UserSubscriptionCouponController extends Controller
                 'subscription_plans.name as plan_name',
                 'coupons.code as coupon_code'
             )
-            ->where('user_subscription_coupon.id', $id)
+            ->where('user_subscription_coupon.uuid', $uuid)
             ->first();
 
         if (!$subscription) {
@@ -130,11 +136,11 @@ class UserSubscriptionCouponController extends Controller
     }
 
     /**
-     * Update an existing subscription.
+     * Update an existing subscription by UUID.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $uuid)
     {
-        $subscription = DB::table('user_subscription_coupon')->find($id);
+        $subscription = DB::table('user_subscription_coupon')->where('uuid', $uuid)->first();
 
         if (!$subscription) {
             return response()->json([
@@ -152,14 +158,14 @@ class UserSubscriptionCouponController extends Controller
                 'purchased_at' => 'nullable|date',
             ]);
 
-            DB::table('user_subscription_coupon')->where('id', $id)->update($validated);
+            DB::table('user_subscription_coupon')->where('uuid', $uuid)->update($validated);
 
             $updated = DB::table('user_subscription_coupon')
                 ->join('users', 'user_subscription_coupon.user_id', '=', 'users.id')
                 ->join('subscription_plans', 'user_subscription_coupon.plan_id', '=', 'subscription_plans.id')
                 ->leftJoin('coupons', 'user_subscription_coupon.coupon_id', '=', 'coupons.id')
                 ->select(
-                    'user_subscription_coupon.id',
+                    'user_subscription_coupon.uuid',
                     'user_subscription_coupon.user_id',
                     'user_subscription_coupon.plan_id',
                     'user_subscription_coupon.coupon_id',
@@ -171,7 +177,7 @@ class UserSubscriptionCouponController extends Controller
                     'subscription_plans.name as plan_name',
                     'coupons.code as coupon_code'
                 )
-                ->where('user_subscription_coupon.id', $id)
+                ->where('user_subscription_coupon.uuid', $uuid)
                 ->first();
 
             return response()->json([
@@ -188,11 +194,11 @@ class UserSubscriptionCouponController extends Controller
     }
 
     /**
-     * Delete a user subscription.
+     * Delete a user subscription by UUID.
      */
-    public function destroy($id)
+    public function destroy($uuid)
     {
-        $subscription = DB::table('user_subscription_coupon')->find($id);
+        $subscription = DB::table('user_subscription_coupon')->where('uuid', $uuid)->first();
 
         if (!$subscription) {
             return response()->json([
@@ -201,7 +207,7 @@ class UserSubscriptionCouponController extends Controller
             ], 404);
         }
 
-        DB::table('user_subscription_coupon')->where('id', $id)->delete();
+        DB::table('user_subscription_coupon')->where('uuid', $uuid)->delete();
 
         return response()->json([
             'status' => 'success',

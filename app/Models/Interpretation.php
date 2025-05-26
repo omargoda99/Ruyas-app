@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Interpretation extends Model
 {
-    use HasFactory;
+    use HasFactory , Uuid;
     protected $fillable = [
-        'dream_id', 'interpreter_id', 'content', 'is_approved'
+        'uuid','dream_id', 'interpreter_id', 'content', 'is_approved'
     ];
 
     // Relationship with the dream (the dream that is being interpreted)
@@ -17,7 +18,7 @@ class Interpretation extends Model
     {
         return $this->belongsTo(Dream::class);
     }
-    
+
     // Relationship with the interpreter (the person who is interpreting the dream)
     public function interpreter()
     {

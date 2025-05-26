@@ -15,6 +15,7 @@ class CreateChatifyMessagesTable extends Migration
     {
         Schema::create('ch_messages', function (Blueprint $table) {
             $table->id();  // This creates an auto-incrementing primary key
+            $table->uuid('uuid')->unique();
             $table->foreignId('conversation_id')->constrained('conversations');
             $table->foreignId('from_id');
             $table->foreignId('to_id');

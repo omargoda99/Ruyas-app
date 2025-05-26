@@ -14,6 +14,7 @@ return new class extends Migration
     {
         Schema::create('interpretations', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('dream_id')->constrained('dreams')->onDelete('cascade');
             $table->foreignId('interpreter_id')->constrained('interpreters')->onDelete('cascade');
             $table->text('content');

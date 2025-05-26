@@ -17,7 +17,7 @@ class AdController extends Controller
             'status' => 'success',
             'data' => $ads->map(function ($ad) {
                 return [
-                    'id' => $ad->id,
+                    'uuid' => $ad->uuid,
                     'title' => $ad->ad_title,
                     'description' => $ad->ad_description,
                     'start_date' => $ad->start_date,
@@ -69,21 +69,21 @@ class AdController extends Controller
         ], 201);
     }
 
-    public function show($id)
+    public function show($uuid)
     {
-        $ad = Ad::find($id);
-    
+        $ad = Ad::where('uuid', $uuid)->first();
+
         if (!$ad) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Advertisement not found'
             ], 404);
         }
-    
+
         return response()->json([
             'status' => 'success',
             'data' => [
-                'id' => $ad->id,
+                'uuid' => $ad->uuid,
                 'title' => $ad->ad_title,
                 'description' => $ad->ad_description,
                 'start_date' => $ad->start_date,
@@ -94,11 +94,10 @@ class AdController extends Controller
             ]
         ]);
     }
-    
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $uuid)
     {
-        $ad = Ad::find($id);
+        $ad = Ad::where('uuid', $uuid)->first();
 
         if (!$ad) {
             return response()->json(['status' => 'error', 'message' => 'Advertisement not found'], 404);
@@ -133,9 +132,9 @@ class AdController extends Controller
         return response()->json(['status' => 'success', 'data' => $ad]);
     }
 
-    public function destroy($id)
+    public function destroy($uuid)
     {
-        $ad = Ad::find($id);
+        $ad = Ad::where('uuid', $uuid)->first();
 
         if (!$ad) {
             return response()->json(['status' => 'error', 'message' => 'Advertisement not found'], 404);

@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Str;
 use App\Notifications\ResetPasswordNotification;
+use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,7 +16,8 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, HasRoleAndPermission, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, HasRoleAndPermission, Notifiable, SoftDeletes ,Uuid;
+
 
     /**
      * The database table used by the model.
@@ -108,6 +111,8 @@ class User extends Authenticatable implements JWTSubject
         'updated_at'                        => 'datetime',
         'deleted_at'                        => 'datetime',
     ];
+
+
 
     public function getJWTIdentifier()
     {

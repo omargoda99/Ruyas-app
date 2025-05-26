@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Admin;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -15,7 +16,9 @@ class AdminController extends Controller
         return response()->json(Admin::all());
     }
 
-    // Store a new admin
+    /**
+     * Store a new admin.
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -31,17 +34,21 @@ class AdminController extends Controller
         return response()->json($admin, 201);
     }
 
-    // Show one admin
-    public function show($id)
+    /**
+     * Display the specified admin by UUID.
+     */
+    public function show($uuid)
     {
-        $admin = Admin::findOrFail($id);
+        $admin = Admin::where('uuid', $uuid)->firstOrFail();
         return response()->json($admin);
     }
 
-    // Update an admin
-    public function update(Request $request, $id)
+    /**
+     * Update the specified admin by UUID.
+     */
+    public function update(Request $request, $uuid)
     {
-        $admin = Admin::findOrFail($id);
+        $admin = Admin::where('uuid', $uuid)->firstOrFail();
 
         $validated = $request->validate([
             'name'     => 'sometimes|string|max:255',
@@ -60,10 +67,12 @@ class AdminController extends Controller
         return response()->json($admin);
     }
 
-    // Delete an admin
-    public function destroy($id)
+    /**
+     * Remove the specified admin by UUID.
+     */
+    public function destroy($uuid)
     {
-        $admin = Admin::findOrFail($id);
+        $admin = Admin::where('uuid', $uuid)->firstOrFail();
         $admin->delete();
 
         return response()->json(['message' => 'Admin deleted successfully.']);

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('app_guides', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('view_title'); // Name of the view or step
             $table->text('description'); // Explanation of the view or step
             $table->integer('order')->default(0); // Order in which the view appears

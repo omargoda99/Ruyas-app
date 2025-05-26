@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('ads', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('ad_title'); // Title of the ad
             $table->text('ad_description'); // Description of the ad
             $table->string('ad_image_path')->nullable(); // Image path for the ad

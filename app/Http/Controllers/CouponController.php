@@ -28,17 +28,17 @@ class CouponController extends Controller
         return response()->json($coupon, 201);
     }
 
-    // Show a specific coupon
-    public function show($id)
+    // Show a specific coupon by UUID
+    public function show($uuid)
     {
-        $coupon = Coupon::findOrFail($id);
+        $coupon = Coupon::where('uuid', $uuid)->firstOrFail();
         return response()->json($coupon);
     }
 
-    // Update an existing coupon
-    public function update(Request $request, $id)
+    // Update an existing coupon by UUID
+    public function update(Request $request, $uuid)
     {
-        $coupon = Coupon::findOrFail($id);
+        $coupon = Coupon::where('uuid', $uuid)->firstOrFail();
 
         $validated = $request->validate([
             'code'        => 'sometimes|string|unique:coupons,code,' . $coupon->id,
@@ -50,10 +50,10 @@ class CouponController extends Controller
         return response()->json($coupon);
     }
 
-    // Delete a coupon
-    public function destroy($id)
+    // Delete a coupon by UUID
+    public function destroy($uuid)
     {
-        $coupon = Coupon::findOrFail($id);
+        $coupon = Coupon::where('uuid', $uuid)->firstOrFail();
         $coupon->delete();
 
         return response()->json(['message' => 'Coupon deleted successfully.']);

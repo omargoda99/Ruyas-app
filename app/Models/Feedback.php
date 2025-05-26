@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
+use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Feedback extends Model
 {
-    use HasFactory;
+    use HasFactory,Uuid;
     protected $table = 'feedbacks';
 
     protected $fillable = [
+        'uuid',
         'user_id',
         'interpreter_id',
         'interpretation_id',

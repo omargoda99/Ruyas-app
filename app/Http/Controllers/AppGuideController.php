@@ -5,130 +5,100 @@ namespace App\Http\Controllers;
 use App\Models\AppGuide;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+
 class AppGuideController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the guides.
      */
-      // Display a listing of the guides
-      public function index()
-      {
-          // Get all guides ordered by the 'order' field in ascending order
-          $guides = AppGuide::orderBy('order', 'asc')->get();
-          // Return the guides as a JSON response
-          return response()->json($guides);
-      }
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index()
     {
-        //
+        $guides = AppGuide::orderBy('order', 'asc')->get();
+        return response()->json($guides);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created guide.
      */
     public function store(Request $request)
     {
-    // Validate the incoming request
         $request->validate([
             'view_title' => 'required|string|max:255',
             'description' => 'required|string',
             'order' => 'required|integer',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Image validation
+            'image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        // Handle the image upload if present
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image_path')->store('guide_images', 'public'); // Store image in 'public' disk
-        } else {
-            $imagePath = null; // If no image is uploaded, set it to null
-        }
+        $imagePath = $request->hasFile('image_path')
+            ? $request->file('image_path')->store('guide_images', 'public')
+            : null;
 
-        // Create the new AppGuide entry
         $guide = AppGuide::create([
             'view_title' => $request->view_title,
             'description' => $request->description,
             'order' => $request->order,
-            'image_path' => $imagePath, // Store the image path in the database
+            'image_path' => $imagePath,
         ]);
 
         return response()->json($guide, 201);
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified guide by UUID.
      */
-    public function show(Request $request)
+    public function show($uuid)
     {
-        $id = $request->input('id');
-        $guide = AppGuide::findOrFail($id);
-
-        if (!$guide) {
-            return response()->json(['message' => 'guide view not found'], status: 404);
-        }
-        return response()->json($guide,200);
+        $guide = AppGuide::where('uuid', $uuid)->firstOrFail();
+        return response()->json($guide);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Update the specified guide by UUID.
      */
-    public function edit(AppGuide $appGuide)
+    public function update(Request $request, $uuid)
     {
-        //
-    }
+        $guide = AppGuide::where('uuid', $uuid)->firstOrFail();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    // Update the specified guide in the database
-    public function update(Request $request)
-    {
-        $id = $request->input('id');
-        $guide = AppGuide::find($id);
-
-        if (!$guide) {
-            return response()->json(['message' => 'guide view not found'], status: 404);
-        }
-        $old_image = $guide->image;
+        $oldImage = $guide->image_path;
 
         $request->validate([
             'view_title' => 'required|string|max:255',
             'description' => 'required|string',
             'order' => 'required|integer',
-            'image_path' => 'nullable|string',
+            'image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         $guide->view_title = $request->view_title;
         $guide->description = $request->description;
-        $guide->order = $request->order ;
+        $guide->order = $request->order;
 
-        if ($request->hasFile('image_path')){
-            $image = $request->file('image_path')->store('public');
-            File::delete($old_image);
-            $guide->image = $image;
+        if ($request->hasFile('image_path')) {
+            $newImage = $request->file('image_path')->store('guide_images', 'public');
+            if ($oldImage && File::exists(public_path('storage/' . $oldImage))) {
+                File::delete(public_path('storage/' . $oldImage));
+            }
+            $guide->image_path = $newImage;
         }
 
         $guide->save();
-        return response()->json($guide,201);
+
+        return response()->json($guide, 200);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified guide by UUID.
      */
-    public function destroy(Request $request)
+    public function destroy($uuid)
     {
-        //
-        $id = $request->input('id');
-        $guide = AppGuide::find($id);
+        $guide = AppGuide::where('uuid', $uuid)->firstOrFail();
 
-        if (!$guide) {
-            return response()->json(['message' => 'Feature not found'], 404);
+        // Delete image if it exists
+        if ($guide->image_path && File::exists(public_path('storage/' . $guide->image_path))) {
+            File::delete(public_path('storage/' . $guide->image_path));
         }
 
         $guide->delete();
 
-        return response()->json(['message' => 'guide view deleted'], 200);
+        return response()->json(['message' => 'Guide deleted successfully.']);
     }
 }

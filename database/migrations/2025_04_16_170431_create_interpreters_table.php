@@ -12,6 +12,7 @@ return new class extends Migration
     {
         Schema::create('interpreters', function (Blueprint $table) {
             $table->id(); // Auto-incrementing ID for each interpreter
+            $table->uuid('uuid')->unique();
             // Foreign key to the users table
             $table->unsignedBigInteger('user_id')->unique();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
@@ -28,7 +29,7 @@ return new class extends Migration
             $table->string('city');
             $table->string('pervious_work');
             $table->enum('status', ['active', 'inactive', 'banned'])->default('active');
-
+            $table->float('rating_avg')->default(0);
             $table->timestamps();
         });
     }

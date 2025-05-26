@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Certification;
-use Illuminate\Http\Request;
 use App\Models\Interpreter;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 
 class CertificationController extends Controller
 {
+    /**
+     * List all certifications.
+     */
     public function index()
     {
         $certifications = Certification::all();
@@ -25,7 +28,7 @@ class CertificationController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'interpreter_id'       => 'required|exists:interpreters,id',
+            'interpreter_uuid'     => 'required|exists:interpreters,uuid',
             'name'                 => 'required|string|max:255',
             'issuing_organization' => 'required|string|max:255',
             'issue_date'           => 'required|date',
@@ -34,10 +37,13 @@ class CertificationController extends Controller
             'credential_url'       => 'nullable|url',
         ]);
 
+        // Retrieve interpreter by UUID
+        $interpreter = Interpreter::where('uuid', $validated['interpreter_uuid'])->firstOrFail();
+
         $imagePath = $request->file('credential_img')->store('certifications', 'public');
 
         $certification = Certification::create([
-            'interpreter_id'       => $validated['interpreter_id'],
+            'interpreter_id'       => $interpreter->id,
             'name'                 => $validated['name'],
             'issuing_organization' => $validated['issuing_organization'],
             'issue_date'           => $validated['issue_date'],
@@ -53,11 +59,11 @@ class CertificationController extends Controller
     }
 
     /**
-     * Show certifications for a given interpreter.
+     * Show certifications for a given interpreter UUID.
      */
-    public function show($interpreterId)
+    public function show($interpreterUuid)
     {
-        $interpreter = Interpreter::find($interpreterId);
+        $interpreter = Interpreter::where('uuid', $interpreterUuid)->first();
 
         if (!$interpreter) {
             return response()->json([
@@ -73,11 +79,11 @@ class CertificationController extends Controller
     }
 
     /**
-     * Delete a specific certification.
+     * Delete a specific certification by UUID.
      */
-    public function destroy($id)
+    public function destroy($uuid)
     {
-        $certification = Certification::find($id);
+        $certification = Certification::where('uuid', $uuid)->first();
 
         if (!$certification) {
             return response()->json([

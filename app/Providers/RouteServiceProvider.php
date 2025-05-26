@@ -33,6 +33,14 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // ✅ Custom route bindings
+        Route::bind('user', function ($value) {
+            return \App\Models\User::where('uuid', $value)->firstOrFail();
+        });
+
+        // Add more bindings here if needed, for example:
+        // Route::bind('interpreter', fn($value) => \App\Models\Interpreter::where('uuid', $value)->firstOrFail());
+
         $this->configureRateLimiting();
 
         $this->routes(function () {
@@ -44,6 +52,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('routes/web.php'));
         });
     }
+
 
     /**
      * Configure the rate limiters for the application.

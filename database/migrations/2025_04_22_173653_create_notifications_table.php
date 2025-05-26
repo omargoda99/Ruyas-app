@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('title');
             $table->text('description');
             $table->string('link');
-            $table->string('link_type'); 
-            $table->string('img_path')->nullable(); 
+            $table->string('link_type');
+            $table->string('img_path')->nullable();
             $table->timestamps();
         });
     }

@@ -14,11 +14,11 @@ class NotificationController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title'       => 'required|string|max:255',
             'description' => 'required|string',
-            'link' => 'required|url',
-            'link_type' => 'required|in:external,internal',
-            'img_path' => 'nullable|image|max:2048',
+            'link'        => 'required|url',
+            'link_type'   => 'required|in:external,internal',
+            'img_path'    => 'nullable|image|max:2048',
         ]);
 
         $imgPath = null;
@@ -27,20 +27,22 @@ class NotificationController extends Controller
         }
 
         $notification = NotificationModel::create([
-            'title' => $request->title,
+            'title'       => $request->title,
             'description' => $request->description,
-            'link' => $request->link,
-            'link_type' => $request->link_type,
-            'img_path' => $imgPath,
+            'link'        => $request->link,
+            'link_type'   => $request->link_type,
+            'img_path'    => $imgPath,
         ]);
 
         $this->sendNotificationToAllUsers($notification);
 
         return response()->json([
-            'message' => 'Notification sent successfully!'
-        ], 200);
+            'message' => 'Notification sent successfully!',
+            'notification_uuid' => $notification->uuid,
+        ], 201);
     }
 
+    // Send notification to all users
     public function sendNotificationToAllUsers(NotificationModel $notification)
     {
         $users = User::all();
@@ -55,6 +57,7 @@ class NotificationController extends Controller
         }
     }
 
+    // Get unread notifications of the authenticated user
     public function getUnreadNotifications()
     {
         $user = Auth::user();
@@ -65,6 +68,7 @@ class NotificationController extends Controller
         ], 200);
     }
 
+    // Get read notifications of the authenticated user
     public function getReadNotifications()
     {
         $user = Auth::user();
@@ -75,9 +79,21 @@ class NotificationController extends Controller
         ], 200);
     }
 
-    public function markAsRead($notificationId)
+    // Mark a notification as read by UUID for the authenticated user
+    public function markAsRead($uuid)
     {
-        $notification = NotificationModel::findOrFail($notificationId);
+        $user = Auth::user();
+
+        $notification = $user->notifications()->where('uuid', $uuid)->first();
+
+        if (!$notification) {
+            return response()->json(['message' => 'Notification not found'], 404);
+        }
+
+        if ($notification->read_at !== null) {
+            return response()->json(['message' => 'Notification already marked as read'], 400);
+        }
+
         $notification->update(['read_at' => now()]);
 
         return response()->json([

@@ -17,7 +17,7 @@ class FeedbackController extends Controller
             $feedbacks = Feedback::with(['user', 'interpreter', 'interpretation', 'dream'])
                 ->latest()
                 ->get();
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $feedbacks,
@@ -39,25 +39,25 @@ class FeedbackController extends Controller
     {
         try {
             $validated = $request->validate([
-                // In production, you would use Auth::id() instead
-                'user_id' => 'required|exists:users,id',
-                'interpreter_id' => 'required|exists:interpreters,id',
-                'interpretation_id' => 'required|exists:interpretations,id',
-                'dream_id' => 'required|exists:dreams,id',
-                'feedback_text' => 'required|string|min:10',
-                'rating' => 'required|integer|min:1|max:5',
+                // Use uuid columns for existence check
+                'user_id'          => 'required|exists:users,uuid',
+                'interpreter_id'   => 'required|exists:interpreters,uuid',
+                'interpretation_id'=> 'required|exists:interpretations,uuid',
+                'dream_id'         => 'required|exists:dreams,uuid',
+                'feedback_text'    => 'required|string|min:10',
+                'rating'           => 'required|integer|min:1|max:5',
             ]);
 
             $feedback = Feedback::create([
-                'user_id' => $validated['user_id'], // Replace with Auth::id() in production
-                'interpreter_id' => $validated['interpreter_id'],
-                'interpretation_id' => $validated['interpretation_id'],
-                'dream_id' => $validated['dream_id'],
-                'feedback_text' => $validated['feedback_text'],
-                'rating' => $validated['rating'],
+                'user_id'          => $validated['user_id'], // Use Auth::id() in production if applicable
+                'interpreter_id'   => $validated['interpreter_id'],
+                'interpretation_id'=> $validated['interpretation_id'],
+                'dream_id'         => $validated['dream_id'],
+                'feedback_text'    => $validated['feedback_text'],
+                'rating'           => $validated['rating'],
             ]);
 
-            // Recalculate interpreter rating
+            // Recalculate interpreter rating after creating feedback
             $feedback->interpreter->updateRating();
 
             return response()->json([
@@ -82,87 +82,73 @@ class FeedbackController extends Controller
     }
 
     /**
-     * Display the specified feedback.
+     * Display the specified feedback by UUID.
      */
-    public function show(Feedback $feedback)
+    public function show($uuid)
     {
-        try {
-            return response()->json([
-                'success' => true,
-                'data' => $feedback->load(['user', 'interpreter', 'interpretation', 'dream']),
-                'message' => 'Feedback retrieved successfully.'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to retrieve feedback.',
-                'error' => $e->getMessage()
-            ], 500);
+        $feedback = Feedback::where('uuid', $uuid)
+            ->with(['user', 'interpreter', 'interpretation', 'dream'])
+            ->first();
+
+        if (!$feedback) {
+            return response()->json(['success' => false, 'message' => 'Feedback not found'], 404);
         }
+
+        return response()->json([
+            'success' => true,
+            'data' => $feedback,
+            'message' => 'Feedback retrieved successfully.'
+        ]);
     }
 
     /**
-     * Update the specified feedback in storage.
+     * Update the specified feedback in storage by UUID.
      */
-    public function update(Request $request, Feedback $feedback)
+    public function update(Request $request, $uuid)
     {
-        try {
-            $validated = $request->validate([
-                'feedback_text' => 'sometimes|string|min:10',
-                'rating' => 'sometimes|integer|min:1|max:5',
-            ]);
+        $feedback = Feedback::where('uuid', $uuid)->first();
 
-            $feedback->update($validated);
-
-            // Recalculate interpreter rating if rating was updated
-            if (isset($validated['rating'])) {
-                $feedback->interpreter->updateRating();
-            }
-
-            return response()->json([
-                'success' => true,
-                'data' => $feedback,
-                'message' => 'Feedback updated successfully.'
-            ]);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update feedback.',
-                'error' => $e->getMessage()
-            ], 500);
+        if (!$feedback) {
+            return response()->json(['success' => false, 'message' => 'Feedback not found'], 404);
         }
+
+        $validated = $request->validate([
+            'feedback_text' => 'sometimes|string|min:10',
+            'rating'       => 'sometimes|integer|min:1|max:5',
+        ]);
+
+        $feedback->update($validated);
+
+        if (isset($validated['rating'])) {
+            $feedback->interpreter->updateRating();
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $feedback,
+            'message' => 'Feedback updated successfully.'
+        ]);
     }
 
     /**
-     * Remove the specified feedback from storage.
+     * Remove the specified feedback from storage by UUID.
      */
-    public function destroy(Feedback $feedback)
+    public function destroy($uuid)
     {
-        try {
-            $interpreter = $feedback->interpreter;
-            $feedback->delete();
+        $feedback = Feedback::where('uuid', $uuid)->first();
 
-            // Recalculate interpreter rating after deletion
-            $interpreter->updateRating();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Feedback deleted successfully.'
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to delete feedback.',
-                'error' => $e->getMessage()
-            ], 500);
+        if (!$feedback) {
+            return response()->json(['success' => false, 'message' => 'Feedback not found'], 404);
         }
+
+        $interpreter = $feedback->interpreter;
+        $feedback->delete();
+
+        $interpreter->updateRating();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Feedback deleted successfully.'
+        ]);
     }
 }

@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\Uuid;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserSubscriptionCoupon extends Model
 {
+    use HasFactory ,Uuid;
     protected $table = 'user_subscription_coupon';
 
     protected $fillable = [
+        'uuid',
         'user_id',
         'plan_id',
         'coupon_id',

@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Interpreter extends Model
 {
-    use HasFactory;
+    use HasFactory ,Uuid;
 
     // Fillable attributes
     protected $fillable = [
-        'email', 'password', 'name', 'age', 'gender', 'country', 'city',
+        'uuid','email', 'password', 'name', 'age', 'gender', 'country', 'city',
         'status', 'languages', 'years_of_experience', 'memorized_quran_parts',
         'nationality', 'certifications_id', 'interpretations_id'
     ];

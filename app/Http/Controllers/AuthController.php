@@ -105,17 +105,17 @@ class AuthController extends Controller
     }
 
     public function refresh(Request $request)
-{
-    try {
-        // Attempt to refresh the token
-        $newToken = JWTAuth::refresh(JWTAuth::getToken());
+    {
+        try {
+            // Attempt to refresh the token
+            $newToken = JWTAuth::refresh(JWTAuth::getToken());
 
-        return response()->json(['token' => $newToken]);
+            return response()->json(['token' => $newToken]);
 
-    } catch (JWTException $e) {
-        return response()->json(['message' => 'Could not refresh token'], 500);
+        } catch (JWTException $e) {
+            return response()->json(['message' => 'Could not refresh token'], 500);
+        }
     }
-}
 
     public function userProfile(Request $request)
     {
@@ -137,14 +137,14 @@ class AuthController extends Controller
         ]);
     }
 
-    public function updateProfile(Request $request)
+   public function updateProfile(Request $request)
     {
         $user = auth()->user();
 
         $validator = Validator::make($request->all(), [
             'name'           => 'nullable|string|max:100',
-            'email'          => 'nullable|email|unique:users,email,' . $user->id,
-            'phone'          => 'nullable|string|max:15|unique:users,phone,' . $user->id,
+            'email'          => 'nullable|email|unique:users,email,' . $user->uuid . ',uuid',
+            'phone'          => 'nullable|string|max:15|unique:users,phone,' . $user->uuid . ',uuid',
             'age'            => 'nullable|integer|min:0',
             'marital_status' => 'nullable|in:single,married,divorced,widowed',
         ]);
@@ -184,6 +184,7 @@ class AuthController extends Controller
             'user'    => $user->fresh()
         ]);
     }
+
 
 
 

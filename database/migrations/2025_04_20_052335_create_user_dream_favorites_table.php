@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('user_dream_favorites', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Foreign key to users
             $table->foreignId('dream_id')->constrained()->onDelete('cascade'); // Foreign key to dreams
             $table->timestamps();

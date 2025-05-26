@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Complain extends Model
 {
-    use HasFactory;
+    use HasFactory , Uuid;
 
     // Define statuses as constants for cleaner usage
     public const STATUS_PENDING = 'pending';
@@ -16,6 +17,7 @@ class Complain extends Model
 
     // Allow mass assignment for these attributes
     protected $fillable = [
+        'uuid',
         'user_id',
         'interpreter_id',
         'complain_text',

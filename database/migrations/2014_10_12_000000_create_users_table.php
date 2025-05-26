@@ -16,6 +16,7 @@ public function up()
 {
     Schema::create('users', function (Blueprint $table) {
         $table->id();
+        $table->uuid('uuid')->unique()->index();
         $table->string('name')->nullable();
         $table->string('email')->nullable()->unique(); // Nullable because phone can be used
         $table->string('phone')->nullable()->unique();  // Nullable because email can be used
@@ -31,6 +32,7 @@ public function up()
         $table->string('city')->nullable();
         $table->string('postal_code')->nullable();
         $table->enum('status', ['active', 'inactive', 'banned'])->default('active');
+        $table->timestamp('last_activity_at')->nullable();
         $table->softDeletes(); // This adds the `deleted_at` column
         $table->timestamps();
     });

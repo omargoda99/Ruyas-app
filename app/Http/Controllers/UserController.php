@@ -1,8 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use App\Http\Controllers\Controller;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -12,18 +10,19 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware('auth');
     }
+
     public function index()
     {
         $user = Auth::user();
 
         if ($user->isAdmin()) {
-            return view('pages.admin.home'); // if admin, he has dashboard (future feature)
+            return view('pages.admin.home');
         }
+
         return response()->json(User::all());
     }
 
@@ -32,9 +31,9 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name'              => 'required|string|max:255',
-            'email'             => 'nullable|email|string|max:100|unique:users,email', // Email is optional
-            'phone'             => 'nullable|string|max:15|unique:users,phone', // Phone is optional
-            'password'          => 'required|string|min:6|confirmed', // Password and confirmation
+            'email'             => 'nullable|email|string|max:100|unique:users,email',
+            'phone'             => 'nullable|string|max:15|unique:users,phone',
+            'password'          => 'required|string|min:6|confirmed',
             'age'               => 'nullable|integer',
             'marital_status'    => ['nullable', Rule::in(['single', 'married', 'divorced', 'widowed'])],
             'gender'            => ['required', Rule::in(['male', 'female'])],
@@ -48,38 +47,34 @@ class UserController extends Controller
             'status'            => ['nullable', Rule::in(['active', 'inactive', 'banned'])],
         ]);
 
-        // Ensure at least one of the email or phone is provided
         if (!$request->has('email') && !$request->has('phone')) {
             return response()->json(['message' => 'Please provide either an email or a phone number.'], 400);
         }
 
-        // Hash the password
         $validated['password_hash'] = Hash::make($validated['password']);
         unset($validated['password']);
 
-        // Create the user with either email or phone
         $user = User::create($validated);
 
         return response()->json($user, 201);
     }
 
-
-
-    // Show a single user
-    public function show($id)
+    // Show a single user by UUID
+    public function show($uuid)
     {
-        $user = User::findOrFail($id);
+        $user = User::where('uuid', $uuid)->firstOrFail();
         return response()->json($user);
     }
 
-    // Update a user
-    public function update(Request $request, $id)
+    // Update a user by UUID
+    public function update(Request $request, $uuid)
     {
-        $user = User::findOrFail($id);
+        $user = User::where('uuid', $uuid)->firstOrFail();
 
         $validated = $request->validate([
             'name'              => 'sometimes|string|max:255',
-            'email'             => ['sometimes', 'email', Rule::unique('users')->ignore($user->id)],
+            'email'             => ['sometimes', 'email', Rule::unique('users')->ignore($user->uuid, 'uuid')],
+            'phone'             => ['sometimes', 'string', 'max:15', Rule::unique('users')->ignore($user->uuid, 'uuid')],
             'password'          => 'sometimes|string|min:6',
             'age'               => 'nullable|integer',
             'marital_status'    => ['nullable', Rule::in(['single', 'married', 'divorced', 'widowed'])],
@@ -104,27 +99,24 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    // Delete a user
-    public function destroy($id)
+    // Delete a user by UUID
+    public function destroy($uuid)
     {
-        $user = User::findOrFail($id);
+        $user = User::where('uuid', $uuid)->firstOrFail();
         $user->delete();
 
         return response()->json(['message' => 'User deleted successfully.']);
     }
-     // Method to mark a notification as read
-      // Mark notification as read (API version)
-      public function markAsRead($notificationId)
-      {
-          // Find the notification
-          $notification = Notification::findOrFail($notificationId);
 
-          // Mark the notification as read by setting 'read_at' to current timestamp
-          $notification->update(['read_at' => now()]);
+    // Mark a notification as read by UUID
+    public function markAsRead($uuid)
+    {
+        $notification = Notification::where('uuid', $uuid)->firstOrFail();
 
-          // Return success response as JSON
-          return response()->json([
-              'message' => 'Notification marked as read'
-          ], 200);
-      }
+        $notification->update(['read_at' => now()]);
+
+        return response()->json([
+            'message' => 'Notification marked as read'
+        ], 200);
+    }
 }
