@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Notification as NotificationModel;
@@ -101,3 +100,6 @@ class NotificationController extends Controller
         ], 200);
     }
 }
+
+
+{}
