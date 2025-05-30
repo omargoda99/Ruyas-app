@@ -15,7 +15,7 @@ Route::post('/idInfo', 'MessagesController@idFetchData')->name('api.idInfo');
 /**
  * Send message route
  */
-Route::post('/sendMessage', 'MessagesController@send')->name('api.send.message');
+// Route::post('/sendMessage', 'MessagesController@send')->name('api.send.message');
 
 /**
  * Fetch messages

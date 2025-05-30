@@ -11,7 +11,7 @@ class InterpreterRequest extends Model
     use HasFactory,Uuid;
 
       protected $fillable = [
-        'uuid','user_id','name','email','phone','age', 'gender', 'years_of_experience',
+        'uuid','user_uuid','name','email','phone','age', 'gender', 'years_of_experience',
         'memorized_quran_parts', 'languages', 'nationality',
         'country', 'city', 'status'
     ];
@@ -22,6 +22,6 @@ class InterpreterRequest extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_uuid', 'uuid');
     }
 }

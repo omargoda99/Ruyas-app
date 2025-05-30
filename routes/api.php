@@ -111,7 +111,7 @@ Route::middleware(['jwt.verify'])->group(function(){
 Route::group(['middleware' => ['api', 'checkblocked']], function () {
     // Welcome and Terms
     Route::get('/', 'App\Http\Controllers\WelcomeController@welcome');
-    Route::get('/terms', 'App\Http\Controllers\TermsController@terms');
+    // Route::get('/terms', 'App\Http\Controllers\TermsController@terms'); // don't have controller 
 
     // Authentication Routes
     // Route::post('/login', 'App\Http\Controllers\Auth\LoginController@login');
@@ -262,18 +262,18 @@ DELETE /api/interpretations/1
  */
 // Route::middleware('auth:sanctum')->group(function () {
 Route::get('feedbacks', [FeedbackController::class, 'index']); // Get all feedbacks
-Route::get('feedbacks/{id}', [FeedbackController::class, 'show']); // Show one feedback
+Route::get('feedback', [FeedbackController::class, 'show']); // Show one feedback
 Route::post('feedbacks', [FeedbackController::class, 'store']); // Store a new feedback
-Route::put('feedbacks/{id}', [FeedbackController::class, 'update']); // Update an existing feedback
-Route::delete('feedbacks/{id}', [FeedbackController::class, 'destroy']); // Delete a feedback
+Route::put('feedbacks', [FeedbackController::class, 'update']); // Update an existing feedback
+Route::delete('feedbacks', [FeedbackController::class, 'destroy']); // Delete a feedback
 // Route::get('feedbacks/{id}', [FeedbackController::class, 'show']); // Show one feedback
 // });
 
 Route::get('complains', [ComplainController::class, 'index']);
-Route::get('complains/{id}', [ComplainController::class, 'show']);
+Route::get('complains', [ComplainController::class, 'show']);
 Route::post('complains', [ComplainController::class, 'store']);
-Route::put('complains/{id}', [ComplainController::class, 'update']);
-Route::delete('complains/{id}', [ComplainController::class, 'destroy']);
+Route::put('complains', [ComplainController::class, 'update']);
+Route::delete('complains', [ComplainController::class, 'destroy']);
 
 // PHP info
 Route::get('/phpinfo', function () {

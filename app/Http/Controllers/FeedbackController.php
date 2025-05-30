@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Feedback;
+use App\Models\User;
+use App\Models\Interpreter;
+use App\Models\Interpretation;
+use App\Models\Dream;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class FeedbackController extends Controller
 {
@@ -33,31 +36,36 @@ class FeedbackController extends Controller
     }
 
     /**
-     * Store a newly created feedback in storage.
+     * Store a newly created feedback using UUIDs.
      */
     public function store(Request $request)
     {
         try {
             $validated = $request->validate([
-                // Use uuid columns for existence check
-                'user_id'          => 'required|exists:users,uuid',
-                'interpreter_id'   => 'required|exists:interpreters,uuid',
-                'interpretation_id'=> 'required|exists:interpretations,uuid',
-                'dream_id'         => 'required|exists:dreams,uuid',
-                'feedback_text'    => 'required|string|min:10',
-                'rating'           => 'required|integer|min:1|max:5',
+                'user_id'           => 'required|exists:users,uuid',
+                'interpreter_id'    => 'required|exists:interpreters,uuid',
+                'interpretation_id' => 'required|exists:interpretations,uuid',
+                'dream_id'          => 'required|exists:dreams,uuid',
+                'feedback_text'     => 'required|string|min:10',
+                'rating'            => 'required|integer|min:1|max:5',
             ]);
 
+            // Convert UUIDs to internal IDs
+            $userId = User::where('uuid', $validated['user_id'])->firstOrFail()->id;
+            $interpreterId = Interpreter::where('uuid', $validated['interpreter_id'])->firstOrFail()->id;
+            $interpretationId = Interpretation::where('uuid', $validated['interpretation_id'])->firstOrFail()->id;
+            $dreamId = Dream::where('uuid', $validated['dream_id'])->firstOrFail()->id;
+
             $feedback = Feedback::create([
-                'user_id'          => $validated['user_id'], // Use Auth::id() in production if applicable
-                'interpreter_id'   => $validated['interpreter_id'],
-                'interpretation_id'=> $validated['interpretation_id'],
-                'dream_id'         => $validated['dream_id'],
+                'user_id'          => $userId,
+                'interpreter_id'   => $interpreterId,
+                'interpretation_id'=> $interpretationId,
+                'dream_id'         => $dreamId,
                 'feedback_text'    => $validated['feedback_text'],
                 'rating'           => $validated['rating'],
             ]);
 
-            // Recalculate interpreter rating after creating feedback
+            // Update interpreter rating after new feedback
             $feedback->interpreter->updateRating();
 
             return response()->json([
@@ -82,10 +90,11 @@ class FeedbackController extends Controller
     }
 
     /**
-     * Display the specified feedback by UUID.
+     * Display a specific feedback using UUID.
      */
-    public function show($uuid)
+    public function show(Request $request)
     {
+        $uuid = $request->input('uuid');
         $feedback = Feedback::where('uuid', $uuid)
             ->with(['user', 'interpreter', 'interpretation', 'dream'])
             ->first();
@@ -102,10 +111,11 @@ class FeedbackController extends Controller
     }
 
     /**
-     * Update the specified feedback in storage by UUID.
+     * Update feedback using UUID.
      */
-    public function update(Request $request, $uuid)
+    public function update(Request $request)
     {
+        $uuid = $request->input('uuid');
         $feedback = Feedback::where('uuid', $uuid)->first();
 
         if (!$feedback) {
@@ -114,7 +124,7 @@ class FeedbackController extends Controller
 
         $validated = $request->validate([
             'feedback_text' => 'sometimes|string|min:10',
-            'rating'       => 'sometimes|integer|min:1|max:5',
+            'rating'        => 'sometimes|integer|min:1|max:5',
         ]);
 
         $feedback->update($validated);
@@ -131,10 +141,11 @@ class FeedbackController extends Controller
     }
 
     /**
-     * Remove the specified feedback from storage by UUID.
+     * Delete feedback using UUID.
      */
-    public function destroy($uuid)
+    public function destroy(Request $request)
     {
+        $uuid = $request->input('uuid');
         $feedback = Feedback::where('uuid', $uuid)->first();
 
         if (!$feedback) {

@@ -24,8 +24,10 @@ class Conversation extends Model
     {
         return $this->belongsTo(Interpreter::class, 'interpreter_id');
     }
+   // Conversation.php
     public function messages()
     {
-        return $this->hasMany(ChMessage::class);
+        return $this->hasMany(ChMessage::class, 'conversation_id', 'uuid');
     }
+
 }

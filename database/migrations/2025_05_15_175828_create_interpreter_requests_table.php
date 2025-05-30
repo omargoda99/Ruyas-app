@@ -14,7 +14,7 @@ return new class extends Migration
        Schema::create('interpreter_requests', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->unsignedBigInteger('user_id')->unique(); // Each user can only request once
+            $table->uuid('user_uuid');
             $table->string('name');
             $table->string('email');
             $table->string('phone');
@@ -30,7 +30,6 @@ return new class extends Migration
             $table->enum('status', ['accebted', 'pending', 'rejected'])->default('pending');
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
 
     }

@@ -14,11 +14,14 @@ class CreateChatifyMessagesTable extends Migration
     public function up()
     {
         Schema::create('ch_messages', function (Blueprint $table) {
-            $table->id();  // This creates an auto-incrementing primary key
+            $table->id();
             $table->uuid('uuid')->unique();
-            $table->foreignId('conversation_id')->constrained('conversations');
-            $table->foreignId('from_id');
-            $table->foreignId('to_id');
+            $table->uuid('conversation_id');
+
+            // Change these to uuid instead of foreignId()
+            $table->uuid('from_id');
+            $table->uuid('to_id');
+
             $table->text('body')->nullable();
             $table->string('attachment')->nullable();
             $table->string('voice')->nullable();
@@ -28,6 +31,7 @@ class CreateChatifyMessagesTable extends Migration
             $table->timestamps();
         });
     }
+
 
 
     /**

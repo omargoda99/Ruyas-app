@@ -2,17 +2,19 @@
 
 namespace App\Models;
 
+use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ChMessage extends Model
 {
-    use HasFactory;
+    use HasFactory , Uuid;
 
     protected $table = 'ch_messages';
 
     // Define the fillable fields
     protected $fillable = [
+    'uuid',
     'conversation_id',
     'from_id',
     'to_id',
@@ -37,8 +39,10 @@ class ChMessage extends Model
     }
 
     // Define relationship to Conversation
+    // ChMessage.php
     public function conversation()
     {
-        return $this->belongsTo(Conversation::class, 'conversation_id');
+        return $this->belongsTo(Conversation::class, 'conversation_id', 'uuid');
     }
+
 }

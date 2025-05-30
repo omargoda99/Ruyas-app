@@ -22,3 +22,7 @@ Broadcast::channel('chart', function ($user) {
         'name' => $user->name,
     ];
 });
+
+Broadcast::channel('ruyas_app', function ($user) {
+    return true; // 
+});
