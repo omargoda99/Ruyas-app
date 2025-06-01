@@ -111,7 +111,7 @@ Route::middleware(['jwt.verify'])->group(function(){
 Route::group(['middleware' => ['api', 'checkblocked']], function () {
     // Welcome and Terms
     Route::get('/', 'App\Http\Controllers\WelcomeController@welcome');
-    // Route::get('/terms', 'App\Http\Controllers\TermsController@terms'); // don't have controller 
+    // Route::get('/terms', 'App\Http\Controllers\TermsController@terms'); // don't have controller
 
     // Authentication Routes
     // Route::post('/login', 'App\Http\Controllers\Auth\LoginController@login');
@@ -269,6 +269,7 @@ Route::delete('feedbacks', [FeedbackController::class, 'destroy']); // Delete a 
 // Route::get('feedbacks/{id}', [FeedbackController::class, 'show']); // Show one feedback
 // });
 
+Route::get('complains/user',[ComplainController::class, 'indexUser']);
 Route::get('complains', [ComplainController::class, 'index']);
 Route::get('complains', [ComplainController::class, 'show']);
 Route::post('complains', [ComplainController::class, 'store']);

@@ -19,7 +19,7 @@ class Complain extends Model
     protected $fillable = [
         'uuid',
         'user_id',
-        'interpreter_id',
+        'complain_title',
         'complain_text',
         'status',
     ];
@@ -29,16 +29,10 @@ class Complain extends Model
      */
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_uuid', 'uuid');
     }
 
-    /**
-     * The interpreter who is being complained about.
-     */
-    public function interpreter()
-    {
-        return $this->belongsTo(Interpreter::class);
-    }
+
 
     /**
      * Scope a query to only include pending complains.
