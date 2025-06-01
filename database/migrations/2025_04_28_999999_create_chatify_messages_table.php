@@ -28,6 +28,7 @@ class CreateChatifyMessagesTable extends Migration
             $table->boolean('seen')->default(false);
             $table->string('sender_type');
             $table->string('receiver_type');
+            $table->boolean('edited')->default(false);
             $table->timestamps();
         });
     }

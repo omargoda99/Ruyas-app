@@ -87,8 +87,11 @@ Route::middleware(['jwt.verify'])->group(function(){
         Route::post('/start-conversation', [ChatController::class, 'startConversation']);
         // Send a message (text or voice)
         Route::post('/send-message', [ChatController::class, 'sendMessage']);
+        // edit on a message (text)
+        Route::post('/edit-message', [ChatController::class, 'editMessage']);
         // Get all messages in a conversation
         Route::get('/get-messages', [ChatController::class, 'getMessages']);
+
 });
 
     // Interpreter Requests

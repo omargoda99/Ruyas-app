@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageEdited;
 use App\Events\NewMessage;
 use App\Http\Controllers\Controller;
 use App\Models\ChMessage;
@@ -131,7 +132,21 @@ class ChatController extends Controller
         return response()->json(['messages' => $messages]);
     }
 
+    public function editMessage(Request $request)
+    {
+        $validated = $request->validate([
+            'message_uuid' => 'required|exists:ch_messages,uuid',
+            'new_body' => 'required|string|min:1',
+        ]);
 
+        $message = ChMessage::where('uuid', $validated['message_uuid'])->firstOrFail();
+        $message->body = $validated['new_body'];
+        $message->edited = true;
+        $message->save();
 
+        broadcast(new MessageEdited($message))->toOthers();
+
+        return response()->json(['message' => $message, 'status' => 'updated']);
+    }
 
 }
