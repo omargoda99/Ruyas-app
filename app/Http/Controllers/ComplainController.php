@@ -89,7 +89,7 @@ class ComplainController extends Controller
     public function show(Request $request)
     {
         $uuid = $request->input('uuid');
-        $complain = Complain::with(['user', 'interpreter'])
+        $complain = Complain::with(['user'])
             ->where('uuid', $uuid)
             ->firstOrFail();
 

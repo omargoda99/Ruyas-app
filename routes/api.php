@@ -271,7 +271,7 @@ Route::delete('feedbacks', [FeedbackController::class, 'destroy']); // Delete a 
 
 Route::get('complains/user',[ComplainController::class, 'indexUser']);
 Route::get('complains', [ComplainController::class, 'index']);
-Route::get('complains', [ComplainController::class, 'show']);
+Route::get('complain', [ComplainController::class, 'show']);
 Route::post('complains', [ComplainController::class, 'store']);
 Route::put('complains', [ComplainController::class, 'update']);
 Route::delete('complains', [ComplainController::class, 'destroy']);

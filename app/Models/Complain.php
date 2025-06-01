@@ -18,7 +18,7 @@ class Complain extends Model
     // Allow mass assignment for these attributes
     protected $fillable = [
         'uuid',
-        'user_id',
+        'user_uuid',
         'complain_title',
         'complain_text',
         'status',
