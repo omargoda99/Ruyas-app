@@ -39,13 +39,9 @@ yarn.lock
 ### Assets ###
 /node_modules
 /public/hot
-/public/storage
 /storage/*.key
 /vendor
 /storage/debugbar
-/storage/framework
-/storage/logs
-/storage/users
 packages/
 .phpunit.result.cache
 .env.backup
