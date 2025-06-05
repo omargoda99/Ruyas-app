@@ -189,11 +189,12 @@ class AuthController extends Controller
 
 
     public function createNewToken($token){
-        return response()->json([
-            'access_token'=>$token,
-            'token_type'=>'bearer',
-            "expires_in"=>auth()->factory()->getTTL()*60,
-            "user"=>auth()->user()
-        ]);
+    return response()->json([
+        'access_token' => $token,
+        'token_type'   => 'bearer',
+        'expires_in'   => auth()->factory()->getTTL() * 60, // now reflects 365 days
+        'user'         => auth()->user()
+    ]);
     }
+
 }
