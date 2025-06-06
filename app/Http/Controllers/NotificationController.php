@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Events\NewNotification;
 use App\Models\Notification as NotificationModel;
 use App\Models\User;
 use App\Notifications\SendAdminNotification;
@@ -35,26 +36,28 @@ class NotificationController extends Controller
 
         $this->sendNotificationToAllUsers($notification);
 
+        // ✅ Fire broadcast event
+        broadcast(new NewNotification($notification))->toOthers();
+
         return response()->json([
             'message' => 'Notification sent successfully!',
             'notification_uuid' => $notification->uuid,
         ], 201);
     }
+        // Send notification to all users
+        public function sendNotificationToAllUsers(NotificationModel $notification)
+        {
+            $users = User::all();
 
-    // Send notification to all users
-    public function sendNotificationToAllUsers(NotificationModel $notification)
-    {
-        $users = User::all();
-
-        foreach ($users as $user) {
-            $user->notify(new SendAdminNotification(
-                $notification->title,
-                $notification->description,
-                $notification->link,
-                $notification->link_type
-            ));
+            foreach ($users as $user) {
+                $user->notify(new SendAdminNotification(
+                    $notification->title,
+                    $notification->description,
+                    $notification->link,
+                    $notification->link_type
+                ));
+            }
         }
-    }
 
     // Get unread notifications of the authenticated user
     public function getUnreadNotifications()
