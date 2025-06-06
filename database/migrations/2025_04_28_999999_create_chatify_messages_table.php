@@ -23,6 +23,7 @@ class CreateChatifyMessagesTable extends Migration
             $table->uuid('to_id');
 
             $table->text('body')->nullable();
+            $table->text('old_body')->nullable();
             $table->string('attachment')->nullable();
             $table->string('voice')->nullable();
             $table->boolean('seen')->default(false);

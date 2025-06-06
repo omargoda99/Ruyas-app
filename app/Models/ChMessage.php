@@ -19,6 +19,7 @@ class ChMessage extends Model
     'from_id',
     'to_id',
     'body',
+    'old_body',
     'attachment',
     'voice', // ✅ Add this line
     'seen',

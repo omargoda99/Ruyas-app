@@ -140,6 +140,9 @@ class ChatController extends Controller
         ]);
 
         $message = ChMessage::where('uuid', $validated['message_uuid'])->firstOrFail();
+
+        // Store old body before update
+        $message->old_body = $message->body;
         $message->body = $validated['new_body'];
         $message->edited = true;
         $message->save();
