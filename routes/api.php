@@ -15,11 +15,13 @@ use App\Http\Controllers\InterpretationController;
 use App\Http\Controllers\InterpreterController;
 use App\Http\Controllers\InterpreterRequestController;
 
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SubscriptionPlanController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserSubscriptionCouponController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -283,3 +285,6 @@ Route::delete('complains', [ComplainController::class, 'destroy']);
 Route::get('/phpinfo', function () {
     return phpinfo();
 });
+
+
+Route::post('notifications',[NotificationController::class, 'store']);

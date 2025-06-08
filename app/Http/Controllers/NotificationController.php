@@ -16,7 +16,7 @@ class NotificationController extends Controller
         $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'required|string',
-            'link'        => 'required|url',
+            'link'        => 'required',
             'link_type'   => 'required|in:external,internal',
             'img_path'    => 'nullable|image|max:2048',
         ]);
