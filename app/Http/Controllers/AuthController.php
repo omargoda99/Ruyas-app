@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 // use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Traits\TokenValidation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -21,6 +22,8 @@ class AuthController extends Controller
      *
      * @return void
      */
+
+     use TokenValidation;
 
      public function __construct(){
         $this->middleware('auth:api',['except'=>['login','register']]);
@@ -99,9 +102,25 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function logout(){
-        auth()->logout();
-        return response()->json(['message'=>'user signed out successfully']);
+    public function logout()
+    {
+        $user = $this->ValidateToken();
+
+        if ($user instanceof \Illuminate\Http\JsonResponse) {
+            return $user; // Return token error response
+        }
+
+        $token = JWTAuth::getToken();
+        if (!$token) {
+            return response()->json(['message' => 'Token not provided'], 400);
+        }
+
+        try {
+            JWTAuth::invalidate($token);
+            return response()->json(['message' => 'User signed out successfully'], 200);
+        } catch (JWTException $e) {
+            return response()->json(['message' => 'Failed to sign out, please try again.'], 500);
+        }
     }
 
     public function refresh(Request $request)
@@ -117,15 +136,13 @@ class AuthController extends Controller
         }
     }
 
-    public function userProfile(Request $request)
+   public function userProfile(Request $request)
     {
-        // Check if the user is authenticated
-        if (!auth()->check()) {
-            return response()->json(['message' => 'Not authorized'], 401);
-        }
+        $user = $this->ValidateToken();
 
-        // Get authenticated user
-        $user = auth()->user();
+        if ($user instanceof \Illuminate\Http\JsonResponse) {
+            return $user;  // Token validation failed
+        }
 
         // Return only selected fields
         return response()->json([
@@ -134,7 +151,7 @@ class AuthController extends Controller
             'phone'           => $user->phone,
             'age'             => $user->age,
             'marital_status'  => $user->marital_status,
-        ]);
+        ], 200);
     }
 
    public function updateProfile(Request $request)
